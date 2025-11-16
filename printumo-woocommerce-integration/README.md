@@ -1,4 +1,4 @@
-# Printumo WooCommerce Integration v2.2
+# Printumo WooCommerce Integration v2.2.2
 
 Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistycznym, eleganckim konfiguratorem produktów canvas i dynamicznym systemem cenowym.
 
@@ -90,6 +90,7 @@ Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistyczn
 - Aktualizuje istniejące produkty przy ponownym imporcie
 
 ### Konfigurator Canvas (dla produktów canvas)
+- **Automatyczne wyświetlanie**: Konfigurator pojawia się automatycznie na stronie produktów canvas
 - **3 opcje wykończenia krawędzi**:
   - Mirrored (odbicie lustrzane) - **Base price**
   - Stretched (rozciągnięcie obrazu) - **+15 €**
@@ -155,11 +156,14 @@ Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistyczn
 
 ## 📋 Użycie
 
-### Shortcode:
+### Automatyczne Wyświetlanie (v2.2.2+):
+Konfigurator canvas jest **automatycznie wstawiany** na stronie produktów canvas - nie wymaga shortcode!
+
+### Shortcode (opcjonalny):
 ```php
 [printumo_configurator]
 ```
-Wyświetla konfigurator canvas na stronie produktu (dla produktów typu canvas).
+Możesz użyć shortcode, jeśli chcesz ręcznie umieścić konfigurator w niestandardowej lokalizacji.
 
 ### API Integration:
 Wtyczka automatycznie wysyła zamówienia do Printumo API z konfiguracją:
@@ -208,6 +212,19 @@ Włącz/wyłącz automatyczne wysyłanie zamówień do Printumo
 - **Printumo REST API v1**
 
 ## 📄 Changelog
+
+### v2.2.2 (2025-11-16)
+- 🔧 **Naprawiono wyświetlanie konfiguratora**: Automatyczne wstawianie na stronę produktu
+- ✅ **Auto-insert**: Konfigurator pojawia się automatycznie bez potrzeby shortcode
+- 🎯 **Hook WooCommerce**: Używa `woocommerce_before_add_to_cart_button`
+- 🐛 **Bugfix**: Rozwiązano problem z niewyświetlaniem się konfiguratora v2.2
+- 📊 **Dodano debugowanie**: Metoda auto_display_configurator() z logowaniem
+
+### v2.2.1 (2025-11-16)
+- 🐛 **Debugowanie**: Dodano comprehensive logging system
+- 🔍 **Console logs**: JavaScript debugging dla price calculation
+- 🛠️ **PHP logs**: error_log() dla diagnostyki backend
+- 📝 **HTML markers**: Znaczniki do weryfikacji renderowania
 
 ### v2.2.0 (2025-11-16)
 - 💰 **System dynamicznych cen**: Automatyczne przeliczanie ceny przy zmianie opcji
