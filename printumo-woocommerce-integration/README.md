@@ -1,4 +1,4 @@
-# Printumo WooCommerce Integration v2.3.1
+# Printumo WooCommerce Integration v2.3.2
 
 Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistycznym, eleganckim konfiguratorem produktów canvas.
 
@@ -195,6 +195,13 @@ Włącz/wyłącz automatyczne wysyłanie zamówień do Printumo
 - **Printumo REST API v1**
 
 ## 📄 Changelog
+
+### v2.3.2 (2025-11-16)
+- 🎨 **Cena i przycisk Add to Cart w jednej linii**: Nowy layout flexbox dla lepszej prezentacji
+- 💜 **Stylowana cena**: Fioletowy kolor (taki jak przycisk), czcionka Poppins 25px, pogrubiona
+- 📐 **Buttony wariantów jeden pod drugim**: Zmieniono layout z poziomego na pionowy
+- 🔍 **Przezroczyste tła**: Usunięto tła z divów dla czystszego wyglądu
+- ✨ **Ulepszona czytelność**: Lepsza hierarchia wizualna elementów
 
 ### v2.3.1 (2025-11-16)
 - 🚫 **Ukryto widget Elementor z zakresem cen**: Dodano CSS ukrywający konkretny widget `.elementor-element-cefb45c`

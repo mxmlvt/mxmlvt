@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Printumo WooCommerce Integration
  * Description: Integracja sklepu WooCommerce z Printumo API
- * Version: 2.3.1
+ * Version: 2.3.2
  * Author: MaxDigital.pl
  */
 
@@ -193,9 +193,10 @@ class Printumo_WooCommerce_Integration {
                 /* ========== PRZYCISKI WYBORU WARIANTÓW (SIZES & FRAME) ========== */
                 .printumo-variation-buttons {
                     display: flex !important;
+                    flex-direction: column !important;
                     gap: 10px !important;
-                    flex-wrap: wrap !important;
                     margin: 15px 0 25px 0 !important;
+                    background: transparent !important;
                 }
 
                 .printumo-variation-btn {
@@ -436,6 +437,31 @@ class Printumo_WooCommerce_Integration {
                     font-size: 16px !important;
                     font-weight: bold !important;
                     text-shadow: 0 1px 3px rgba(0,0,0,0.5) !important;
+                }
+
+                /* ========== CENA I PRZYCISK ADD TO CART W JEDNEJ LINII ========== */
+                .single_variation_wrap {
+                    background: transparent !important;
+                }
+
+                .woocommerce-variation-add-to-cart.variations_button {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 20px !important;
+                    flex-wrap: wrap !important;
+                }
+
+                .woocommerce-variation-price {
+                    order: -1 !important;
+                    margin: 0 !important;
+                }
+
+                .woocommerce-variation-price .price {
+                    font-family: 'Poppins', sans-serif !important;
+                    font-size: 25px !important;
+                    font-weight: 600 !important;
+                    color: var(--printumo-primary) !important;
+                    margin: 0 !important;
                 }
 
                 /* ========== PRZYCISK ADD TO CART ========== */
