@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Printumo WooCommerce Integration
  * Description: Integracja sklepu WooCommerce z Printumo API
- * Version: 2.3.0
+ * Version: 2.3.1
  * Author: MaxDigital.pl
  */
 
@@ -453,6 +453,12 @@ class Printumo_WooCommerce_Integration {
                     background: var(--printumo-primary-hover) !important;
                     transform: translateY(-2px) !important;
                     box-shadow: 0 4px 12px rgba(119, 63, 198, 0.3) !important;
+                }
+
+                /* ========== UKRYCIE WIDGETU CENY ELEMENTOR ========== */
+                /* Ukrywa tylko konkretny widget Elementor z zakresem cen, nie wpływa na inne ceny */
+                .elementor-element-cefb45c {
+                    display: none !important;
                 }
 
                 /* ========== RESPONSYWNOŚĆ ========== */
