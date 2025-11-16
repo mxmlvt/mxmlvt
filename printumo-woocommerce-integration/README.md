@@ -1,42 +1,63 @@
-# Printumo WooCommerce Integration v2.0
+# Printumo WooCommerce Integration v2.1
 
-Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z eleganckim, nowoczesnym konfiguratorem produktów canvas.
+Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistycznym, eleganckim konfiguratorem produktów canvas.
 
-## 🎨 Nowy Profesjonalny Design
+## 🎨 Nowy Minimalistyczny Design (v2.1)
 
-### Główne Usprawnienia Wizualne:
+### Paleta Kolorów:
+- **Główny akcent**: `#773fc6` (fioletowy)
+- **Kolor pomocniczy**: `#88d8d3` (turkusowy)
+- **Tło**: `#FFFFFF` (białe)
+- **Teksty**: `#333333` (ciemny szary)
+- **Ramki**: `#E0E0E0` (jasny szary)
+- **Hover**: `#5f2fa3` (ciemniejszy fiolet)
 
-#### 1. **Przyciski Wyboru Wariantów**
-- ✨ Nowoczesne karty z animacjami hover
-- 🎯 Wyraźne wskazanie wybranej opcji (gradient niebieski)
-- 🌊 Płynne przejścia i animacje shimmer
-- 📱 Pełna responsywność
-- ♿ Wyłączone opcje z przejrzystością 30%
+### Główne Usprawnienia v2.1:
 
-#### 2. **Konfigurator Canvas Edge**
-- 🎴 Karty w układzie grid (3 kolumny, responsywne)
-- 🎨 Każda opcja ma własną ikonę gradientową:
-  - **Mirrored**: Gradient fioletowy (mirror effect)
-  - **Stretched**: Gradient różowo-czerwony
-  - **Solid Color**: Gradient niebieski z obramowaniem
-- ✅ Checkmark w prawym górnym rogu dla wybranej opcji
-- 📊 Kolorowy pasek na górze aktywnej karty
-- 🌟 Shadow effects i hover animations
-- 📝 Szczegółowe opisy dla każdej opcji
+#### 1. **Wizualny Wybór Koloru Ramki Canvas**
+- 🎨 **10 gotowych kolorów** w formie małych przycisków (40x40px):
+  - White (#FFFFFF)
+  - Black (#000000)
+  - Brown (#8B4513)
+  - Gold (#D4AF37)
+  - Silver (#C0C0C0)
+  - Navy (#1E3A8A)
+  - Green (#064E3B)
+  - Rust (#7C2D12)
+  - Pink (#BE185D)
+  - Gray (#4B5563)
+- ✓ Checkmark na wybranym kolorze
+- 🔍 Tooltips z nazwami kolorów
+- 📱 Responsywne (36x36px na mobile)
 
-#### 3. **Color Picker**
-- 🎨 Zintegrowany WordPress Color Picker
-- 🎭 Animowane wyświetlanie (slideDown)
-- 🖼️ Eleganckie tło gradientowe
-- 🎯 Wyraźna wizualizacja wybranego koloru
+#### 2. **Minimalistyczne Przyciski Wariantów (Sizes & Frame)**
+- ✨ Przezroczyste tło z subtelną ramką
+- 🎯 Fioletowa ramka i tło przy hover
+- 🔥 2px solid border + fioletowy tekst przy wyborze
+- 🌊 Smooth transition (0.3s ease)
+- 📐 Border-radius: 8px
+- 🎨 Font-weight: 400 → 500 przy wyborze
 
-### Design Principles:
+#### 3. **Zmniejszone Kafelki Canvas Edge (o 30%)**
+- 📏 Min-width: 100px (zamiast ~140px)
+- 🎴 Padding: 16px (zamiast 24px)
+- 🖼️ Ikony: 40px wysokości (zamiast 50px)
+- 💫 Brak ciężkich cieni - tylko subtle shadow przy hover
+- 🎨 Ikony z gradientami fiolet + turkus
 
-- **Minimalistyczny**: Czysty, nowoczesny design bez przeładowania
-- **Intuicyjny**: Łatwy w użyciu, jasne wskazówki wizualne
-- **Profesjonalny**: Wysokiej jakości komponenty UI
-- **Responsywny**: Doskonale wygląda na wszystkich urządzeniach
-- **Accessible**: Wyraźne stany dla disabled/hover/active
+#### 4. **Przycisk "Add to Cart"**
+- 🔵 Tło: fioletowy `#773fc6`
+- 🌟 Hover: ciemniejszy fiolet `#5f2fa3`
+- 📐 Border-radius: 8px
+- 🚀 Transform: translateY(-2px) + shadow przy hover
+
+### Design Principles v2.1:
+
+- **Minimalizm**: Dużo białej przestrzeni, czyste linie
+- **Subtle**: Delikatne animacje (0.3s transition)
+- **Konsystencja**: Fiolet + turkus w całym konfiguratorze
+- **Accessibility**: Wyraźne stany hover/active/disabled
+- **Mobile-first**: Responsywny design
 
 ## 🚀 Instalacja
 
@@ -59,13 +80,14 @@ Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z eleganckim, no
 - **3 opcje wykończenia krawędzi**:
   - Mirrored (odbicie lustrzane)
   - Stretched (rozciągnięcie obrazu)
-  - Solid Color (jednolity kolor + wybór koloru)
+  - Solid Color (jednolity kolor + **wizualny wybór z 10 kolorów**)
+- **Wizualne przyciski kolorów** zamiast color pickera
 - Zapisuje konfigurację w koszyku i zamówieniu
 - Automatycznie wysyła konfigurację do Printumo przy składaniu zamówienia
 
 ### Automatyczne Wysyłanie Zamówień
 - Automatyczna wysyłka do Printumo przy statusie "processing" lub "completed"
-- Przekazuje konfigurację canvas wrapping
+- Przekazuje konfigurację canvas wrapping (typ + kolor)
 - Zapisuje ID zamówienia Printumo w meta danych
 
 ### Synchronizacja Statusów
@@ -73,35 +95,65 @@ Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z eleganckim, no
 - Mapowanie statusów Printumo → WooCommerce
 - Ręczna synchronizacja dostępna w panelu admin
 
-## 🎨 Szczegóły Stylistyczne
+## 🎨 Szczegóły Stylistyczne v2.1
 
-### Kolory:
-- **Główny**: `#3182ce` (niebieski)
-- **Gradient**: `#3182ce → #2c5aa0`
-- **Tło**: `#f7fafc → #edf2f7`
-- **Tekst**: `#1a202c`, `#2d3748`, `#718096`
-- **Border**: `#e8e8e8`, `#cbd5e0`
+### CSS Variables:
+```css
+--printumo-primary: #773fc6
+--printumo-primary-hover: #5f2fa3
+--printumo-primary-light: rgba(119, 63, 198, 0.05)
+--printumo-primary-medium: rgba(119, 63, 198, 0.08)
+--printumo-secondary: #88d8d3
+--printumo-bg: #FFFFFF
+--printumo-text: #333333
+--printumo-border: #E0E0E0
+```
 
-### Animacje:
-- **Hover Transform**: `translateY(-2px)` / `translateY(-3px)`
-- **Transition**: `cubic-bezier(0.4, 0, 0.2, 1)` (material design)
-- **Shimmer Effect**: Gradient animation przy hover
-- **SlideDown**: Dla color picker (0.3s ease)
+### Transitions:
+- **Duration**: 0.3s (wszystkie animacje)
+- **Easing**: ease (subtle, naturalny)
+- **Transform**: translateY(-2px) przy hover
 
-### Responsywność:
-- **Desktop**: Grid 3-kolumnowy, pełne przyciski
-- **Tablet**: Grid auto-fit, min 180px
-- **Mobile**: Pojedyncza kolumna, zmniejszone fonty i padding
+### Shadows:
+- **Default**: none (minimalizm)
+- **Hover**: `0 2px 8px rgba(119, 63, 198, 0.15)`
+- **Selected**: `0 0 0 2px rgba(119, 63, 198, 0.2)`
+- **Button hover**: `0 4px 12px rgba(119, 63, 198, 0.3)`
 
-### Shadow Effects:
-- **Default**: `0 2px 8px rgba(0,0,0,0.04)`
-- **Hover**: `0 8px 24px rgba(0,0,0,0.12)`
-- **Active**: `0 8px 24px rgba(49, 130, 206, 0.15)`
-- **Button**: `0 4px 15px rgba(49, 130, 206, 0.4)`
+### Typography:
+- **Nagłówki**: uppercase, letter-spacing 0.5px
+- **Weights**: 400 (default) → 500 (selected)
+- **Sizes**: 14-16px (przyciski), 11px (opisy)
 
-## 📋 Użycie CSS z !important
+### Border Radius:
+- **Przyciski/karty**: 8px (zaokrąglone narożniki)
+- **Większe karty**: 12px
+- **Checkmark**: 50% (okrągły)
 
-Wszystkie style używają flagi `!important` aby zapewnić priorytet nad stylami motywu i innych wtyczek.
+## 📋 Użycie
+
+### Shortcode:
+```php
+[printumo_configurator]
+```
+Wyświetla konfigurator canvas na stronie produktu (dla produktów typu canvas).
+
+### API Integration:
+Wtyczka automatycznie wysyła zamówienia do Printumo API z konfiguracją:
+```json
+{
+  "line_items": [
+    {
+      "variant_id": 456,
+      "quantity": 1,
+      "canvas_wrapping": {
+        "wrap_type": "solid_color",
+        "wrap_color": "#8B4513"
+      }
+    }
+  ]
+}
+```
 
 ## 🔧 Konfiguracja
 
@@ -120,29 +172,36 @@ Włącz/wyłącz automatyczne wysyłanie zamówień do Printumo
 - ✅ WooCommerce 5.0+
 - ✅ PHP 7.4+
 - ✅ Wszystkie nowoczesne przeglądarki
-- ✅ Mobile & Tablet friendly
+- ✅ Mobile & Tablet friendly (responsive breakpoints)
 
 ## 🎯 Technologie
 
 - **WordPress Plugin API**
 - **WooCommerce Hooks & Filters**
 - **jQuery** (dla interakcji)
-- **WordPress Color Picker**
-- **CSS Grid & Flexbox**
-- **CSS Animations & Transitions**
+- **CSS Grid & Flexbox** (responsywny layout)
+- **CSS Variables** (konsystentna paleta kolorów)
+- **CSS Transitions & Transforms** (subtle animations)
 - **Printumo REST API v1**
 
 ## 📄 Changelog
 
+### v2.1.0 (2025-11-16)
+- 🎨 **Nowa paleta kolorów**: Fiolet (#773fc6) + Turkus (#88d8d3)
+- 🎨 **Wizualny wybór koloru ramki**: 10 kolorów w formie małych przycisków
+- 📐 **Zmniejszone kafelki o 30%**: Min-width 100px, ikony 40px
+- ✨ **Minimalistyczny design**: Przezroczyste tła, subtle shadows
+- 🔵 **Nowy przycisk Add to Cart**: Fioletowy z hover effects
+- 🌊 **Smooth transitions**: 0.3s ease dla wszystkich animacji
+- ♿ **Ulepszona accessibility**: Wyraźne stany hover/active
+- 📱 **Lepsza responsywność**: Breakpointy dla mobile/tablet
+
 ### v2.0.0 (2025-11-16)
-- 🎨 Całkowicie przeprojektowany konfigurator canvas
+- 🎨 Przeprojektowany konfigurator canvas
 - ✨ Dodano profesjonalne animacje i przejścia
-- 🎴 Karty z ikonami gradientowymi dla opcji wrapping
+- 🎴 Karty z ikonami gradientowymi
 - 🎯 Checkmark dla wybranej opcji
 - 📱 Ulepszona responsywność
-- 🌟 Shadow effects i hover states
-- 🎨 Lepszy color picker z animacjami
-- ♿ Ulepszona accessibility
 
 ### v1.8.2
 - Podstawowa funkcjonalność integracji z Printumo
@@ -160,3 +219,5 @@ Problemy z API? Kontakt: dev@printumo.com
 ---
 
 **Made with ❤️ for beautiful print-on-demand stores**
+
+*Design inspirowany minimalizmem i eleganc ją.*

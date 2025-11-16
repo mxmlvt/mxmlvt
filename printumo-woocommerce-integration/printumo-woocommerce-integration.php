@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Printumo WooCommerce Integration
  * Description: Integracja sklepu WooCommerce z Printumo API
- * Version: 2.0.0
+ * Version: 2.1.0
  * Author: MaxDigital.pl
  */
 
@@ -117,82 +117,71 @@ class Printumo_WooCommerce_Integration {
 
     public function enqueue_frontend_scripts() {
         if (is_product()) {
-            wp_enqueue_style('wp-color-picker');
-            wp_enqueue_script('wp-color-picker');
             wp_enqueue_script('jquery');
 
-            // PROFESJONALNY NOWOCZESNY DESIGN KONFIGURATORA
-            wp_add_inline_style('wp-color-picker', '
-                /* ========== PRZYCISKI WYBORU WARIANTÓW ========== */
+            // NOWY MINIMALISTYCZNY DESIGN - FIOLET + TURKUS
+            wp_add_inline_style('woocommerce-inline', '
+                /* ========== GLOBALNE ZMIENNE KOLORÓW ========== */
+                :root {
+                    --printumo-primary: #773fc6 !important;
+                    --printumo-primary-hover: #5f2fa3 !important;
+                    --printumo-primary-light: rgba(119, 63, 198, 0.05) !important;
+                    --printumo-primary-medium: rgba(119, 63, 198, 0.08) !important;
+                    --printumo-secondary: #88d8d3 !important;
+                    --printumo-bg: #FFFFFF !important;
+                    --printumo-text: #333333 !important;
+                    --printumo-border: #E0E0E0 !important;
+                }
+
+                /* ========== PRZYCISKI WYBORU WARIANTÓW (SIZES & FRAME) ========== */
                 .printumo-variation-buttons {
                     display: flex !important;
-                    gap: 12px !important;
+                    gap: 10px !important;
                     flex-wrap: wrap !important;
                     margin: 15px 0 25px 0 !important;
                 }
 
                 .printumo-variation-btn {
-                    padding: 12px 24px !important;
-                    border: 2px solid #e8e8e8 !important;
-                    background: #ffffff !important;
+                    padding: 12px 20px !important;
+                    border: 1px solid var(--printumo-border) !important;
+                    background: transparent !important;
                     border-radius: 8px !important;
                     cursor: pointer !important;
                     font-size: 15px !important;
-                    font-weight: 500 !important;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                    color: #2d3748 !important;
+                    font-weight: 400 !important;
+                    transition: all 0.3s ease !important;
+                    color: var(--printumo-text) !important;
                     line-height: 1.4 !important;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
-                    position: relative !important;
-                    overflow: hidden !important;
-                }
-
-                .printumo-variation-btn::before {
-                    content: "" !important;
-                    position: absolute !important;
-                    top: 0 !important;
-                    left: -100% !important;
-                    width: 100% !important;
-                    height: 100% !important;
-                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent) !important;
-                    transition: left 0.5s !important;
-                }
-
-                .printumo-variation-btn:hover::before {
-                    left: 100% !important;
+                    box-shadow: none !important;
                 }
 
                 .printumo-variation-btn:hover {
-                    border-color: #4a5568 !important;
-                    color: #1a202c !important;
+                    border-color: var(--printumo-primary) !important;
+                    background: var(--printumo-primary-light) !important;
                     transform: translateY(-2px) !important;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
                 }
 
                 .printumo-variation-btn.selected {
-                    border-color: #3182ce !important;
-                    color: #ffffff !important;
-                    background: linear-gradient(135deg, #3182ce 0%, #2c5aa0 100%) !important;
-                    font-weight: 600 !important;
-                    box-shadow: 0 4px 15px rgba(49, 130, 206, 0.4) !important;
+                    border: 2px solid var(--printumo-primary) !important;
+                    background: var(--printumo-primary-medium) !important;
+                    font-weight: 500 !important;
+                    color: var(--printumo-primary) !important;
                 }
 
                 .printumo-variation-btn:disabled {
                     opacity: 0.3 !important;
                     cursor: not-allowed !important;
-                    border-color: #f0f0f0 !important;
+                    border-color: var(--printumo-border) !important;
                     transform: none !important;
-                    box-shadow: none !important;
                 }
 
                 .printumo-variation-btn:disabled:hover {
-                    border-color: #f0f0f0 !important;
-                    color: #2d3748 !important;
+                    border-color: var(--printumo-border) !important;
+                    background: transparent !important;
                     transform: none !important;
-                    box-shadow: none !important;
                 }
 
-                /* ========== KONFIGURATOR CANVAS - GŁÓWNY KONTENER ========== */
+                /* ========== KONFIGURATOR CANVAS ========== */
                 .printumo-configurator {
                     margin: 40px 0 30px 0 !important;
                     padding: 0 !important;
@@ -203,46 +192,31 @@ class Printumo_WooCommerce_Integration {
 
                 .printumo-configurator h4 {
                     margin-top: 0 !important;
-                    margin-bottom: 25px !important;
-                    font-size: 20px !important;
-                    font-weight: 600 !important;
-                    color: #1a202c !important;
-                    letter-spacing: -0.5px !important;
-                    position: relative !important;
-                    padding-bottom: 15px !important;
-                }
-
-                .printumo-configurator h4::after {
-                    content: "" !important;
-                    position: absolute !important;
-                    bottom: 0 !important;
-                    left: 0 !important;
-                    width: 60px !important;
-                    height: 3px !important;
-                    background: linear-gradient(90deg, #3182ce, #63b3ed) !important;
-                    border-radius: 2px !important;
+                    margin-bottom: 20px !important;
+                    font-size: 16px !important;
+                    font-weight: 500 !important;
+                    color: var(--printumo-text) !important;
+                    text-transform: uppercase !important;
+                    letter-spacing: 0.5px !important;
                 }
 
                 .printumo-option {
-                    margin-bottom: 30px !important;
+                    margin-bottom: 25px !important;
                 }
 
                 .printumo-option > label {
                     display: block !important;
-                    font-weight: 600 !important;
-                    margin-bottom: 16px !important;
-                    font-size: 15px !important;
-                    color: #2d3748 !important;
-                    text-transform: uppercase !important;
-                    letter-spacing: 0.5px !important;
-                    font-size: 13px !important;
+                    font-weight: 500 !important;
+                    margin-bottom: 12px !important;
+                    font-size: 14px !important;
+                    color: var(--printumo-text) !important;
                 }
 
-                /* ========== OPCJE WRAPPINGU - KARTY ========== */
+                /* ========== OPCJE WRAPPINGU - ZMNIEJSZONE O 30% ========== */
                 .printumo-wrap-options {
                     display: grid !important;
-                    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
-                    gap: 16px !important;
+                    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
+                    gap: 12px !important;
                 }
 
                 @media (max-width: 768px) {
@@ -260,140 +234,101 @@ class Printumo_WooCommerce_Integration {
                 }
 
                 .printumo-wrap-option label {
-                    display: block !important;
-                    padding: 24px 20px !important;
-                    border: 2px solid #e8e8e8 !important;
-                    border-radius: 12px !important;
-                    cursor: pointer !important;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                    background: #ffffff !important;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
-                    position: relative !important;
-                    overflow: hidden !important;
-                    min-height: 140px !important;
                     display: flex !important;
                     flex-direction: column !important;
+                    align-items: center !important;
                     justify-content: center !important;
-                }
-
-                .printumo-wrap-option label::before {
-                    content: "" !important;
-                    position: absolute !important;
-                    top: 0 !important;
-                    left: 0 !important;
-                    right: 0 !important;
-                    height: 4px !important;
-                    background: linear-gradient(90deg, #3182ce, #63b3ed) !important;
-                    transform: scaleX(0) !important;
-                    transform-origin: left !important;
-                    transition: transform 0.3s ease !important;
+                    padding: 16px !important;
+                    border: 1px solid var(--printumo-border) !important;
+                    border-radius: 12px !important;
+                    cursor: pointer !important;
+                    transition: all 0.3s ease !important;
+                    background: var(--printumo-bg) !important;
+                    box-shadow: none !important;
+                    min-height: auto !important;
+                    text-align: center !important;
                 }
 
                 .printumo-wrap-option label:hover {
-                    border-color: #cbd5e0 !important;
-                    transform: translateY(-3px) !important;
-                    box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+                    border-color: var(--printumo-primary) !important;
+                    box-shadow: 0 2px 8px rgba(119, 63, 198, 0.15) !important;
                 }
 
                 .printumo-wrap-option input[type="radio"]:checked + label {
-                    border-color: #3182ce !important;
-                    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%) !important;
-                    box-shadow: 0 8px 24px rgba(49, 130, 206, 0.15) !important;
+                    border: 2px solid var(--printumo-primary) !important;
+                    background: rgba(119, 63, 198, 0.03) !important;
                 }
 
-                .printumo-wrap-option input[type="radio"]:checked + label::before {
-                    transform: scaleX(1) !important;
-                }
-
-                /* Ikona checkmark dla wybranej opcji */
+                /* Ikona checkmark */
                 .printumo-wrap-option input[type="radio"]:checked + label::after {
                     content: "✓" !important;
                     position: absolute !important;
-                    top: 12px !important;
-                    right: 12px !important;
-                    width: 28px !important;
-                    height: 28px !important;
-                    background: linear-gradient(135deg, #3182ce, #2c5aa0) !important;
+                    top: 8px !important;
+                    right: 8px !important;
+                    width: 20px !important;
+                    height: 20px !important;
+                    background: var(--printumo-primary) !important;
                     color: white !important;
                     border-radius: 50% !important;
                     display: flex !important;
                     align-items: center !important;
                     justify-content: center !important;
-                    font-size: 14px !important;
+                    font-size: 12px !important;
                     font-weight: bold !important;
-                    box-shadow: 0 2px 8px rgba(49, 130, 206, 0.4) !important;
                 }
 
                 .printumo-wrap-option label strong {
                     display: block !important;
-                    margin-bottom: 8px !important;
-                    font-size: 16px !important;
-                    font-weight: 600 !important;
-                    color: #1a202c !important;
-                    letter-spacing: -0.3px !important;
+                    margin-bottom: 6px !important;
+                    font-size: 14px !important;
+                    font-weight: 500 !important;
+                    color: var(--printumo-text) !important;
                 }
 
                 .printumo-wrap-option input[type="radio"]:checked + label strong {
-                    color: #3182ce !important;
+                    color: var(--printumo-primary) !important;
                 }
 
                 .printumo-wrap-option label p {
                     margin: 0 !important;
-                    font-size: 13px !important;
-                    color: #718096 !important;
+                    font-size: 11px !important;
+                    color: #666 !important;
                     font-weight: 400 !important;
-                    line-height: 1.5 !important;
+                    line-height: 1.4 !important;
                 }
 
-                /* Wizualne ikony dla opcji */
+                /* Ikony - zmniejszone do 40px */
                 .printumo-wrap-option label strong::before {
                     content: "" !important;
                     display: block !important;
-                    width: 50px !important;
-                    height: 50px !important;
-                    margin: 0 auto 12px auto !important;
-                    border-radius: 8px !important;
+                    width: 40px !important;
+                    height: 40px !important;
+                    margin: 0 auto 10px auto !important;
+                    border-radius: 6px !important;
                     background: #e8e8e8 !important;
-                    position: relative !important;
                 }
 
-                /* Ikona Mirrored */
                 .printumo-wrap-option:nth-child(1) label strong::before {
-                    background: linear-gradient(90deg, #667eea 0%, #667eea 50%, #764ba2 50%, #764ba2 100%) !important;
+                    background: linear-gradient(90deg, #773fc6 0%, #773fc6 50%, #5f2fa3 50%, #5f2fa3 100%) !important;
                 }
 
-                /* Ikona Stretched */
                 .printumo-wrap-option:nth-child(2) label strong::before {
-                    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+                    background: linear-gradient(135deg, #88d8d3 0%, #773fc6 100%) !important;
                 }
 
-                /* Ikona Solid Color */
                 .printumo-wrap-option:nth-child(3) label strong::before {
-                    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
-                    border: 3px solid white !important;
-                    box-shadow: 0 0 0 2px #3182ce !important;
+                    background: var(--printumo-primary) !important;
+                    border: 2px solid white !important;
+                    box-shadow: 0 0 0 1px var(--printumo-primary) !important;
                 }
 
-                /* ========== COLOR PICKER ========== */
+                /* ========== WYBÓR KOLORU RAMKI - MAŁE PRZYCISKI ========== */
                 .printumo-color-picker-wrapper {
                     display: none !important;
-                    margin-top: 20px !important;
-                    padding: 25px !important;
-                    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%) !important;
-                    border-radius: 12px !important;
-                    border: 2px solid #e8e8e8 !important;
-                    animation: slideDown 0.3s ease !important;
-                }
-
-                @keyframes slideDown {
-                    from {
-                        opacity: 0 !important;
-                        transform: translateY(-10px) !important;
-                    }
-                    to {
-                        opacity: 1 !important;
-                        transform: translateY(0) !important;
-                    }
+                    margin-top: 15px !important;
+                    padding: 0 !important;
+                    background: transparent !important;
+                    border: none !important;
                 }
 
                 .printumo-color-picker-wrapper.active {
@@ -402,82 +337,89 @@ class Printumo_WooCommerce_Integration {
 
                 .printumo-color-picker-wrapper > label {
                     display: block !important;
-                    font-weight: 600 !important;
+                    font-weight: 500 !important;
                     margin-bottom: 12px !important;
                     font-size: 14px !important;
-                    color: #2d3748 !important;
+                    color: var(--printumo-text) !important;
                 }
 
-                .printumo-color-picker {
-                    width: 100% !important;
-                    max-width: 300px !important;
-                    height: 45px !important;
-                    border: 2px solid #cbd5e0 !important;
+                .printumo-color-swatches {
+                    display: flex !important;
+                    gap: 8px !important;
+                    flex-wrap: wrap !important;
+                }
+
+                .printumo-color-swatch {
+                    width: 40px !important;
+                    height: 40px !important;
                     border-radius: 8px !important;
-                    padding: 4px !important;
+                    border: 2px solid var(--printumo-border) !important;
                     cursor: pointer !important;
                     transition: all 0.3s ease !important;
+                    position: relative !important;
                 }
 
-                .printumo-color-picker:hover {
-                    border-color: #3182ce !important;
-                    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1) !important;
+                .printumo-color-swatch:hover {
+                    transform: scale(1.1) !important;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
                 }
 
-                /* WordPress Color Picker Overrides */
-                .wp-picker-container {
-                    display: inline-block !important;
+                .printumo-color-swatch.selected {
+                    border: 3px solid var(--printumo-primary) !important;
+                    box-shadow: 0 0 0 2px rgba(119, 63, 198, 0.2) !important;
                 }
 
-                .wp-picker-container .wp-color-result {
-                    height: 45px !important;
+                .printumo-color-swatch.selected::after {
+                    content: "✓" !important;
+                    position: absolute !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                    color: white !important;
+                    font-size: 16px !important;
+                    font-weight: bold !important;
+                    text-shadow: 0 1px 3px rgba(0,0,0,0.5) !important;
+                }
+
+                /* ========== PRZYCISK ADD TO CART ========== */
+                .single_add_to_cart_button {
+                    background: var(--printumo-primary) !important;
+                    color: white !important;
+                    border: none !important;
                     border-radius: 8px !important;
-                    border: 2px solid #cbd5e0 !important;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
-                    padding: 0 40px 0 50px !important;
+                    padding: 14px 32px !important;
+                    font-weight: 500 !important;
                     transition: all 0.3s ease !important;
                 }
 
-                .wp-picker-container .wp-color-result:hover {
-                    border-color: #3182ce !important;
-                    box-shadow: 0 4px 12px rgba(49, 130, 206, 0.2) !important;
+                .single_add_to_cart_button:hover {
+                    background: var(--printumo-primary-hover) !important;
+                    transform: translateY(-2px) !important;
+                    box-shadow: 0 4px 12px rgba(119, 63, 198, 0.3) !important;
                 }
 
-                .wp-picker-container .wp-color-result-text {
-                    line-height: 41px !important;
-                    font-weight: 500 !important;
-                    font-size: 14px !important;
-                    color: #2d3748 !important;
-                }
-
-                .wp-picker-container .wp-color-result::after {
-                    height: 41px !important;
-                    border-radius: 6px 0 0 6px !important;
-                    border-right: 2px solid #cbd5e0 !important;
-                }
-
-                /* Responsywność */
+                /* ========== RESPONSYWNOŚĆ ========== */
                 @media (max-width: 600px) {
                     .printumo-variation-btn {
-                        padding: 10px 20px !important;
+                        padding: 10px 16px !important;
                         font-size: 14px !important;
                     }
 
-                    .printumo-configurator h4 {
-                        font-size: 18px !important;
-                    }
-
                     .printumo-wrap-option label {
-                        padding: 20px 16px !important;
-                        min-height: 120px !important;
+                        padding: 12px !important;
                     }
 
                     .printumo-wrap-option label strong {
-                        font-size: 15px !important;
+                        font-size: 13px !important;
                     }
 
                     .printumo-wrap-option label p {
-                        font-size: 12px !important;
+                        font-size: 10px !important;
+                    }
+
+                    .printumo-color-swatch {
+                        width: 36px !important;
+                        height: 36px !important;
                     }
                 }
             ');
@@ -487,17 +429,7 @@ class Printumo_WooCommerce_Integration {
                     "use strict";
 
                     function initPrintumoButtons() {
-                        if (typeof $.fn.wpColorPicker !== "undefined") {
-                            $(".printumo-color-picker").wpColorPicker({
-                                change: function(event, ui) {
-                                    // Opcjonalnie: dodaj preview koloru
-                                },
-                                clear: function() {
-                                    // Opcjonalnie: obsłuż wyczyszczenie koloru
-                                }
-                            });
-                        }
-
+                        // Obsługa wyboru typu wrappingu
                         $("input[name=printumo_wrap_type]").off("change.printumo").on("change.printumo", function() {
                             if ($(this).val() === "solid_color") {
                                 $(".printumo-color-picker-wrapper").addClass("active");
@@ -506,11 +438,19 @@ class Printumo_WooCommerce_Integration {
                             }
                         });
 
+                        // Obsługa wyboru koloru
+                        $(".printumo-color-swatch").off("click.printumo").on("click.printumo", function() {
+                            var color = $(this).data("color");
+                            $(".printumo-color-swatch").removeClass("selected");
+                            $(this).addClass("selected");
+                            $("#printumo_wrap_color_input").val(color);
+                        });
+
+                        // Obsługa przycisków wariantów
                         $(".printumo-variation-btn").off("click.printumo").on("click.printumo", function(e) {
                             e.preventDefault();
 
                             var $btn = $(this);
-
                             if ($btn.prop("disabled")) {
                                 return false;
                             }
@@ -528,6 +468,7 @@ class Printumo_WooCommerce_Integration {
                             return false;
                         });
 
+                        // Auto-select pierwszej opcji
                         $(".printumo-variation-buttons").each(function() {
                             var $container = $(this);
                             var $selected = $container.find(".printumo-variation-btn.selected");
@@ -581,6 +522,20 @@ class Printumo_WooCommerce_Integration {
     public function display_canvas_configurator() {
         global $product;
         if (!$product || !get_post_meta($product->get_id(), '_printumo_is_canvas', true)) return;
+
+        // 10 popularnych kolorów ramek
+        $frame_colors = [
+            '#FFFFFF' => 'White',
+            '#000000' => 'Black',
+            '#8B4513' => 'Brown',
+            '#D4AF37' => 'Gold',
+            '#C0C0C0' => 'Silver',
+            '#1E3A8A' => 'Navy',
+            '#064E3B' => 'Green',
+            '#7C2D12' => 'Rust',
+            '#BE185D' => 'Pink',
+            '#4B5563' => 'Gray'
+        ];
         ?>
         <div class="printumo-configurator">
             <h4>Canvas Edge Configuration</h4>
@@ -591,28 +546,37 @@ class Printumo_WooCommerce_Integration {
                         <input type="radio" id="wrap_mirrored" name="printumo_wrap_type" value="mirrored" checked>
                         <label for="wrap_mirrored">
                             <strong>Mirrored</strong>
-                            <p>Image edges are reflected to create seamless margins</p>
+                            <p>Edge reflection</p>
                         </label>
                     </div>
                     <div class="printumo-wrap-option">
                         <input type="radio" id="wrap_stretched" name="printumo_wrap_type" value="stretched">
                         <label for="wrap_stretched">
                             <strong>Stretched</strong>
-                            <p>Image stretches to fill the entire canvas area</p>
+                            <p>Full stretch</p>
                         </label>
                     </div>
                     <div class="printumo-wrap-option">
                         <input type="radio" id="wrap_solid" name="printumo_wrap_type" value="solid_color">
                         <label for="wrap_solid">
                             <strong>Solid Color</strong>
-                            <p>Custom color margins around the image</p>
+                            <p>Choose color</p>
                         </label>
                     </div>
                 </div>
             </div>
             <div class="printumo-option printumo-color-picker-wrapper">
-                <label for="printumo_wrap_color">Select edge color:</label>
-                <input type="text" class="printumo-color-picker" name="printumo_wrap_color" value="#FFFFFF" data-default-color="#FFFFFF">
+                <label>Select edge color:</label>
+                <div class="printumo-color-swatches">
+                    <?php foreach ($frame_colors as $hex => $name): ?>
+                        <div class="printumo-color-swatch <?php echo $hex === '#FFFFFF' ? 'selected' : ''; ?>"
+                             style="background-color: <?php echo esc_attr($hex); ?>;"
+                             data-color="<?php echo esc_attr($hex); ?>"
+                             title="<?php echo esc_attr($name); ?>">
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <input type="hidden" id="printumo_wrap_color_input" name="printumo_wrap_color" value="#FFFFFF">
             </div>
         </div>
         <?php
@@ -637,7 +601,7 @@ class Printumo_WooCommerce_Integration {
             $item_data[] = ['key' => 'Edge Finish', 'value' => $wrap_labels[$cart_item['printumo_wrap_type']] ?? $cart_item['printumo_wrap_type']];
             if ($cart_item['printumo_wrap_type'] === 'solid_color' && !empty($cart_item['printumo_wrap_color'])) {
                 $color = $cart_item['printumo_wrap_color'];
-                $item_data[] = ['key' => 'Edge Color', 'value' => '<span style="display:inline-block;width:20px;height:20px;background:' . esc_attr($color) . ';border:1px solid #ddd;vertical-align:middle;margin-right:5px;"></span>' . esc_html($color)];
+                $item_data[] = ['key' => 'Edge Color', 'value' => '<span style="display:inline-block;width:20px;height:20px;background:' . esc_attr($color) . ';border:1px solid #ddd;vertical-align:middle;margin-right:5px;border-radius:4px;"></span>' . esc_html($color)];
             }
         }
         return $item_data;
