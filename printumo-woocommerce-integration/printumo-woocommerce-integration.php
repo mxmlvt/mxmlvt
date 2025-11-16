@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Printumo WooCommerce Integration
  * Description: Integracja sklepu WooCommerce z Printumo API
- * Version: 2.2.0
+ * Version: 2.2.1
  * Author: MaxDigital.pl
  */
 
@@ -12,6 +12,7 @@ class Printumo_WooCommerce_Integration {
 
     private $api_key;
     private $api_url = 'https://printumo.com/api/v1';
+    private $debug_mode = true; // Włącz debug
 
     public function __construct() {
         $this->api_key = get_option('printumo_api_key');
@@ -114,11 +115,28 @@ class Printumo_WooCommerce_Integration {
     }
 
     public function hide_default_price($price, $product) {
+        // Sprawdź czy $product jest obiektem
+        if (!is_object($product) || !method_exists($product, 'get_id')) {
+            $this->debug_log('hide_default_price: Nieprawidłowy obiekt produktu');
+            return $price;
+        }
+
         // Ukryj domyślną cenę tylko dla produktów Printumo
-        if (get_post_meta($product->get_id(), '_printumo_product_id', true)) {
+        $printumo_id = get_post_meta($product->get_id(), '_printumo_product_id', true);
+
+        if ($printumo_id) {
+            $this->debug_log('hide_default_price: Ukrywam cenę dla produktu Printumo ID: ' . $product->get_id());
             return '';
         }
+
         return $price;
+    }
+
+    // Funkcja debugowania
+    private function debug_log($message) {
+        if ($this->debug_mode) {
+            error_log('[Printumo Debug] ' . $message);
+        }
     }
 
     public function configurator_shortcode() {
@@ -129,10 +147,16 @@ class Printumo_WooCommerce_Integration {
 
     public function enqueue_frontend_scripts() {
         if (is_product()) {
+            $this->debug_log('enqueue_frontend_scripts: Ładowanie skryptów dla strony produktu');
+
             wp_enqueue_script('jquery');
 
+            // Rejestruj i enqueue własny style handle
+            wp_register_style('printumo-styles', false);
+            wp_enqueue_style('printumo-styles');
+
             // NOWY MINIMALISTYCZNY DESIGN - FIOLET + TURKUS
-            wp_add_inline_style('woocommerce-inline', '
+            wp_add_inline_style('printumo-styles', '
                 /* ========== GLOBALNE ZMIENNE KOLORÓW ========== */
                 :root {
                     --printumo-primary: #773fc6 !important;
@@ -485,27 +509,38 @@ class Printumo_WooCommerce_Integration {
             wp_add_inline_script('jquery', '
                 (function($) {
                     "use strict";
+                    console.log("[Printumo] JavaScript załadowany");
 
                     // Funkcja do obliczania dynamicznej ceny
                     function calculatePrice() {
                         var basePrice = parseFloat($(".printumo-price-widget").data("base-price") || 0);
                         var totalPrice = basePrice;
+                        console.log("[Printumo] calculatePrice - basePrice:", basePrice);
 
                         // Dodatek za typ wrappingu
                         var wrapType = $("input[name=printumo_wrap_type]:checked").val();
                         var wrapAddon = parseFloat($("input[name=printumo_wrap_type]:checked").data("price-addon") || 0);
                         totalPrice += wrapAddon;
+                        console.log("[Printumo] calculatePrice - wrapType:", wrapType, "wrapAddon:", wrapAddon, "totalPrice:", totalPrice);
 
                         // Aktualizuj cenę w widgecie
                         if ($(".printumo-price-amount").length) {
                             var currency = $(".printumo-price-widget").data("currency") || "€";
                             $(".printumo-price-amount").text(totalPrice.toFixed(2).replace(".", ",") + " " + currency);
+                            console.log("[Printumo] Zaktualizowano cenę:", totalPrice.toFixed(2) + " " + currency);
+                        } else {
+                            console.warn("[Printumo] Nie znaleziono widgetu ceny (.printumo-price-amount)");
                         }
                     }
 
                     function initPrintumoButtons() {
+                        console.log("[Printumo] initPrintumoButtons wywołane");
+                        console.log("[Printumo] Znalezione inputy wrap_type:", $("input[name=printumo_wrap_type]").length);
+                        console.log("[Printumo] Znalezione przyciski wariantów:", $(".printumo-variation-btn").length);
+
                         // Obsługa wyboru typu wrappingu
                         $("input[name=printumo_wrap_type]").off("change.printumo").on("change.printumo", function() {
+                            console.log("[Printumo] Zmiana typu wrappingu:", $(this).val());
                             if ($(this).val() === "solid_color") {
                                 $(".printumo-color-picker-wrapper").addClass("active");
                             } else {
@@ -600,7 +635,23 @@ class Printumo_WooCommerce_Integration {
 
     public function display_canvas_configurator() {
         global $product;
-        if (!$product || !get_post_meta($product->get_id(), '_printumo_is_canvas', true)) return;
+
+        $this->debug_log('display_canvas_configurator: Wywołane');
+
+        if (!$product) {
+            $this->debug_log('display_canvas_configurator: Brak globalnego obiektu $product');
+            return;
+        }
+
+        $this->debug_log('display_canvas_configurator: Product ID: ' . $product->get_id());
+
+        $is_canvas = get_post_meta($product->get_id(), '_printumo_is_canvas', true);
+        $this->debug_log('display_canvas_configurator: _printumo_is_canvas = ' . var_export($is_canvas, true));
+
+        if (!$is_canvas) {
+            $this->debug_log('display_canvas_configurator: To nie jest produkt canvas, wyświetlanie przerwane');
+            return;
+        }
 
         // 10 popularnych kolorów ramek
         $frame_colors = [
@@ -618,12 +669,17 @@ class Printumo_WooCommerce_Integration {
 
         // Pobierz bazową cenę (najmniejsza cena wariantu)
         $variations = $product->get_available_variations();
+        $this->debug_log('display_canvas_configurator: Liczba wariantów: ' . count($variations));
+
         $base_price = 0;
         if (!empty($variations)) {
             $prices = array_map(function($v) {
                 return floatval($v['display_price']);
             }, $variations);
             $base_price = min($prices);
+            $this->debug_log('display_canvas_configurator: Bazowa cena: ' . $base_price . ' (z ' . count($prices) . ' wariantów)');
+        } else {
+            $this->debug_log('display_canvas_configurator: BRAK WARIANTÓW! Bazowa cena = 0');
         }
 
         // Dodatki cenowe dla opcji wrappingu (przykładowe wartości)
@@ -634,8 +690,10 @@ class Printumo_WooCommerce_Integration {
         ];
 
         $currency = get_woocommerce_currency_symbol();
+        $this->debug_log('display_canvas_configurator: Wyświetlam HTML konfiguratora. Currency: ' . $currency);
         ?>
-        <div class="printumo-configurator">
+        <!-- PRINTUMO CONFIGURATOR START -->
+        <div class="printumo-configurator" data-debug="loaded">
             <h4>Canvas Edge Configuration</h4>
             <div class="printumo-option">
                 <label>Choose edge finish:</label>
@@ -697,7 +755,9 @@ class Printumo_WooCommerce_Integration {
                 <div class="printumo-price-amount"><?php echo number_format($base_price, 2, ',', ' '); ?> <?php echo $currency; ?></div>
             </div>
         </div>
+        <!-- PRINTUMO CONFIGURATOR END -->
         <?php
+        $this->debug_log('display_canvas_configurator: Zakończono wyświetlanie konfiguratora');
     }
 
     public function add_canvas_config_to_cart($cart_item_data, $product_id, $variation_id) {
