@@ -1,8 +1,8 @@
-# Printumo WooCommerce Integration v2.1
+# Printumo WooCommerce Integration v2.2
 
-Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistycznym, eleganckim konfiguratorem produktów canvas.
+Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistycznym, eleganckim konfiguratorem produktów canvas i dynamicznym systemem cenowym.
 
-## 🎨 Nowy Minimalistyczny Design (v2.1)
+## 🎨 Nowy Minimalistyczny Design (v2.2)
 
 ### Paleta Kolorów:
 - **Główny akcent**: `#773fc6` (fioletowy)
@@ -11,6 +11,19 @@ Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistyczn
 - **Teksty**: `#333333` (ciemny szary)
 - **Ramki**: `#E0E0E0` (jasny szary)
 - **Hover**: `#5f2fa3` (ciemniejszy fiolet)
+
+### Główne Usprawnienia v2.2:
+
+#### 0. **System Dynamicznych Cen** 💰 (NOWE w v2.2)
+- 📊 Duża cena fioletowa (36px, font-weight 700) pod konfiguratorem
+- 💵 Dodatki cenowe przy każdej opcji:
+  - Mirrored: "Base price"
+  - Stretched: "+15,00 €"
+  - Solid Color: "+10,00 €"
+- ⚡ Real-time przeliczanie przy zmianie opcji (JavaScript)
+- 🚫 Ukrycie domyślnego zakresu cen WooCommerce ("118,00 € – 283,00 €")
+- 🎯 Bazowa cena pobierana z najtańszego wariantu
+- 📱 Responsive: 28px na mobile
 
 ### Główne Usprawnienia v2.1:
 
@@ -78,12 +91,22 @@ Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistyczn
 
 ### Konfigurator Canvas (dla produktów canvas)
 - **3 opcje wykończenia krawędzi**:
-  - Mirrored (odbicie lustrzane)
-  - Stretched (rozciągnięcie obrazu)
-  - Solid Color (jednolity kolor + **wizualny wybór z 10 kolorów**)
+  - Mirrored (odbicie lustrzane) - **Base price**
+  - Stretched (rozciągnięcie obrazu) - **+15 €**
+  - Solid Color (jednolity kolor + **wizualny wybór z 10 kolorów**) - **+10 €**
 - **Wizualne przyciski kolorów** zamiast color pickera
+- **Dodatki cenowe** wyświetlane przy każdej opcji
 - Zapisuje konfigurację w koszyku i zamówieniu
 - Automatycznie wysyła konfigurację do Printumo przy składaniu zamówienia
+
+### System Dynamicznych Cen (v2.2)
+- **Automatyczne obliczanie**: Cena aktualizuje się w czasie rzeczywistym
+- **Ukryta domyślna cena**: Zakres cen WooCommerce zastąpiony pojedynczą ceną
+- **Widget ceny**: Duża, fioletowa cena (36px) pod konfiguratorem
+- **Dodatki cenowe**: Wyświetlane przy każdej opcji (+15 €, +10 €)
+- **Format**: 129,00 € (przecinek jako separator dziesiętny)
+- **Bazowa cena**: Automatycznie pobierana z najtańszego wariantu
+- **JavaScript**: Real-time przeliczanie przy zmianie opcji
 
 ### Automatyczne Wysyłanie Zamówień
 - Automatyczna wysyłka do Printumo przy statusie "processing" lub "completed"
@@ -185,6 +208,17 @@ Włącz/wyłącz automatyczne wysyłanie zamówień do Printumo
 - **Printumo REST API v1**
 
 ## 📄 Changelog
+
+### v2.2.0 (2025-11-16)
+- 💰 **System dynamicznych cen**: Automatyczne przeliczanie ceny przy zmianie opcji
+- 📊 **Widget ceny**: Duża, fioletowa cena pod konfiguratorem (36px, pogrubiona)
+- 💵 **Dodatki cenowe**: Wyświetlanie przy każdej opcji:
+  - Mirrored: Base price (+0 €)
+  - Stretched: +15 €
+  - Solid Color: +10 €
+- 🚫 **Ukryta domyślna cena WooCommerce**: Zakres cen zastąpiony pojedynczą ceną
+- ⚡ **Real-time obliczenia**: JavaScript automatycznie aktualizuje cenę
+- 🎨 **Responsive**: Widget ceny dostosowuje się do mobile (28px)
 
 ### v2.1.0 (2025-11-16)
 - 🎨 **Nowa paleta kolorów**: Fiolet (#773fc6) + Turkus (#88d8d3)
