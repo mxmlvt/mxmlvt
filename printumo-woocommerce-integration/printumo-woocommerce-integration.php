@@ -457,7 +457,7 @@ class Printumo_WooCommerce_Integration {
                 }
 
                 .woocommerce-variation-price .price {
-                    font-family: 'Poppins', sans-serif !important;
+                    font-family: Poppins, sans-serif !important;
                     font-size: 25px !important;
                     font-weight: 600 !important;
                     color: var(--printumo-primary) !important;
