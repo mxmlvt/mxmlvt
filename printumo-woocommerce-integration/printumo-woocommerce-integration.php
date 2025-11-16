@@ -319,7 +319,7 @@ class Printumo_WooCommerce_Integration {
 
                 /* Ikona checkmark */
                 .printumo-wrap-option input[type="radio"]:checked + label::after {
-                    content: "✓" !important;
+                    content: \"✓\" !important;
                     position: absolute !important;
                     top: 8px !important;
                     right: 8px !important;
@@ -357,7 +357,7 @@ class Printumo_WooCommerce_Integration {
 
                 /* Ikony - zmniejszone do 40px */
                 .printumo-wrap-option label strong::before {
-                    content: "" !important;
+                    content: \"\" !important;
                     display: block !important;
                     width: 40px !important;
                     height: 40px !important;
@@ -428,7 +428,7 @@ class Printumo_WooCommerce_Integration {
                 }
 
                 .printumo-color-swatch.selected::after {
-                    content: "✓" !important;
+                    content: \"✓\" !important;
                     position: absolute !important;
                     top: 50% !important;
                     left: 50% !important;
