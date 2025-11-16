@@ -1,6 +1,6 @@
-# Printumo WooCommerce Integration v2.2.2
+# Printumo WooCommerce Integration v2.3.0
 
-Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistycznym, eleganckim konfiguratorem produktów canvas i dynamicznym systemem cenowym.
+Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistycznym, eleganckim konfiguratorem produktów canvas.
 
 ## 🎨 Nowy Minimalistyczny Design (v2.2)
 
@@ -12,18 +12,13 @@ Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistyczn
 - **Ramki**: `#E0E0E0` (jasny szary)
 - **Hover**: `#5f2fa3` (ciemniejszy fiolet)
 
-### Główne Usprawnienia v2.2:
+### Główne Usprawnienia v2.3:
 
-#### 0. **System Dynamicznych Cen** 💰 (NOWE w v2.2)
-- 📊 Duża cena fioletowa (36px, font-weight 700) pod konfiguratorem
-- 💵 Dodatki cenowe przy każdej opcji:
-  - Mirrored: "Base price"
-  - Stretched: "+15,00 €"
-  - Solid Color: "+10,00 €"
-- ⚡ Real-time przeliczanie przy zmianie opcji (JavaScript)
-- 🚫 Ukrycie domyślnego zakresu cen WooCommerce ("118,00 € – 283,00 €")
-- 🎯 Bazowa cena pobierana z najtańszego wariantu
-- 📱 Responsive: 28px na mobile
+#### 0. **Uproszczona Obsługa Cen** 💰 (NOWE w v2.3)
+- 💵 **Ceny zarządzane przez WooCommerce**: Konfigurator nie wyświetla cen
+- ✅ **Brak duplikacji**: Tylko jeden konfigurator na stronie produktu
+- 🎯 **Cena wariantu**: WooCommerce pokazuje cenę wybranego wariantu (rozmiar + ramka)
+- 🧹 **Czystszy interfejs**: Konfigurator skupia się tylko na konfiguracji canvas
 
 ### Główne Usprawnienia v2.1:
 
@@ -90,24 +85,15 @@ Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistyczn
 - Aktualizuje istniejące produkty przy ponownym imporcie
 
 ### Konfigurator Canvas (dla produktów canvas)
-- **Automatyczne wyświetlanie**: Konfigurator pojawia się automatycznie na stronie produktów canvas
+- **Wyświetlanie przez shortcode**: Użyj `[printumo_configurator]` na stronie produktu
 - **3 opcje wykończenia krawędzi**:
-  - Mirrored (odbicie lustrzane) - **Base price**
-  - Stretched (rozciągnięcie obrazu) - **+15 €**
-  - Solid Color (jednolity kolor + **wizualny wybór z 10 kolorów**) - **+10 €**
-- **Wizualne przyciski kolorów** zamiast color pickera
-- **Dodatki cenowe** wyświetlane przy każdej opcji
+  - Mirrored (odbicie lustrzane)
+  - Stretched (rozciągnięcie obrazu)
+  - Solid Color (jednolity kolor + **wizualny wybór z 10 kolorów**)
+- **Wizualne przyciski kolorów** - 10 gotowych kolorów (White, Black, Brown, Gold, Silver, Navy, Green, Rust, Pink, Gray)
+- **Ceny zarządzane przez WooCommerce**: Konfigurator nie wyświetla cen, WooCommerce pokazuje cenę wybranego wariantu
 - Zapisuje konfigurację w koszyku i zamówieniu
 - Automatycznie wysyła konfigurację do Printumo przy składaniu zamówienia
-
-### System Dynamicznych Cen (v2.2)
-- **Automatyczne obliczanie**: Cena aktualizuje się w czasie rzeczywistym
-- **Ukryta domyślna cena**: Zakres cen WooCommerce zastąpiony pojedynczą ceną
-- **Widget ceny**: Duża, fioletowa cena (36px) pod konfiguratorem
-- **Dodatki cenowe**: Wyświetlane przy każdej opcji (+15 €, +10 €)
-- **Format**: 129,00 € (przecinek jako separator dziesiętny)
-- **Bazowa cena**: Automatycznie pobierana z najtańszego wariantu
-- **JavaScript**: Real-time przeliczanie przy zmianie opcji
 
 ### Automatyczne Wysyłanie Zamówień
 - Automatyczna wysyłka do Printumo przy statusie "processing" lub "completed"
@@ -156,14 +142,11 @@ Profesjonalna wtyczka integrująca WooCommerce z Printumo API - z minimalistyczn
 
 ## 📋 Użycie
 
-### Automatyczne Wyświetlanie (v2.2.2+):
-Konfigurator canvas jest **automatycznie wstawiany** na stronie produktów canvas - nie wymaga shortcode!
-
-### Shortcode (opcjonalny):
+### Shortcode:
 ```php
 [printumo_configurator]
 ```
-Możesz użyć shortcode, jeśli chcesz ręcznie umieścić konfigurator w niestandardowej lokalizacji.
+Użyj shortcode `[printumo_configurator]` na stronie produktów canvas (np. w Elementorze) aby wyświetlić konfigurator krawędzi canvas.
 
 ### API Integration:
 Wtyczka automatycznie wysyła zamówienia do Printumo API z konfiguracją:
@@ -212,6 +195,14 @@ Włącz/wyłącz automatyczne wysyłanie zamówień do Printumo
 - **Printumo REST API v1**
 
 ## 📄 Changelog
+
+### v2.3.0 (2025-11-16)
+- 🔧 **Naprawiono duplikację konfiguratora**: Usunięto auto-insert hook powodujący podwójne wyświetlanie
+- 💰 **Przywrócono ceny WooCommerce**: Usunięto widget ceny z konfiguratora - tylko WooCommerce pokazuje ceny
+- 🧹 **Usunięto system dynamicznych cen**: Konfigurator nie wyświetla już dodatków cenowych
+- ✅ **Uproszczono konfigurator**: Tylko wybór wykończenia krawędzi i koloru ramki
+- 🎯 **Poprawiono logikę cenową**: WooCommerce zarządza wszystkimi cenami wariantów
+- 📊 **Czystszy kod**: Usunięto nieużywany kod JavaScript i CSS dla cen
 
 ### v2.2.2 (2025-11-16)
 - 🔧 **Naprawiono wyświetlanie konfiguratora**: Automatyczne wstawianie na stronę produktu

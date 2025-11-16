@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Printumo WooCommerce Integration
  * Description: Integracja sklepu WooCommerce z Printumo API
- * Version: 2.2.2
+ * Version: 2.3.0
  * Author: MaxDigital.pl
  */
 
@@ -41,12 +41,9 @@ class Printumo_WooCommerce_Integration {
         add_action('printumo_sync_orders_cron', [$this, 'sync_order_statuses']);
         add_action('init', [$this, 'ensure_attributes_exist']);
 
-        // Ukryj domyślną cenę WooCommerce dla produktów Printumo
-        add_filter('woocommerce_variable_price_html', [$this, 'hide_default_price'], 10, 2);
-        add_filter('woocommerce_get_price_html', [$this, 'hide_default_price'], 10, 2);
-
-        // Automatycznie wstaw konfigurator po selectorach wariantów
-        add_action('woocommerce_before_add_to_cart_button', [$this, 'auto_display_configurator']);
+        // NIE ukrywamy domyślnej ceny WooCommerce - użytkownik chce ją widzieć
+        // add_filter('woocommerce_variable_price_html', [$this, 'hide_default_price'], 10, 2);
+        // add_filter('woocommerce_get_price_html', [$this, 'hide_default_price'], 10, 2);
     }
 
     public function custom_variation_display($html, $args) {
@@ -458,44 +455,6 @@ class Printumo_WooCommerce_Integration {
                     box-shadow: 0 4px 12px rgba(119, 63, 198, 0.3) !important;
                 }
 
-                /* ========== WIDGET CENY DYNAMICZNEJ ========== */
-                .printumo-price-widget {
-                    margin: 30px 0 20px 0 !important;
-                    text-align: center !important;
-                }
-
-                .printumo-price-amount {
-                    font-size: 36px !important;
-                    font-weight: 700 !important;
-                    color: var(--printumo-primary) !important;
-                    line-height: 1.2 !important;
-                    letter-spacing: -0.5px !important;
-                }
-
-                /* Dodatki cenowe przy opcjach */
-                .printumo-price-addon {
-                    display: inline-block !important;
-                    margin-left: 8px !important;
-                    font-size: 13px !important;
-                    font-weight: 500 !important;
-                    color: var(--printumo-primary) !important;
-                    opacity: 0.8 !important;
-                }
-
-                .printumo-variation-btn .printumo-price-addon {
-                    display: block !important;
-                    margin-left: 0 !important;
-                    margin-top: 4px !important;
-                    font-size: 12px !important;
-                }
-
-                .printumo-wrap-option .printumo-price-addon {
-                    display: block !important;
-                    margin-left: 0 !important;
-                    margin-top: 4px !important;
-                    font-size: 11px !important;
-                }
-
                 /* ========== RESPONSYWNOŚĆ ========== */
                 @media (max-width: 600px) {
                     .printumo-variation-btn {
@@ -519,14 +478,6 @@ class Printumo_WooCommerce_Integration {
                         width: 36px !important;
                         height: 36px !important;
                     }
-
-                    .printumo-price-amount {
-                        font-size: 28px !important;
-                    }
-
-                    .printumo-price-addon {
-                        font-size: 11px !important;
-                    }
                 }
             ');
 
@@ -534,28 +485,6 @@ class Printumo_WooCommerce_Integration {
                 (function($) {
                     "use strict";
                     console.log("[Printumo] JavaScript załadowany");
-
-                    // Funkcja do obliczania dynamicznej ceny
-                    function calculatePrice() {
-                        var basePrice = parseFloat($(".printumo-price-widget").data("base-price") || 0);
-                        var totalPrice = basePrice;
-                        console.log("[Printumo] calculatePrice - basePrice:", basePrice);
-
-                        // Dodatek za typ wrappingu
-                        var wrapType = $("input[name=printumo_wrap_type]:checked").val();
-                        var wrapAddon = parseFloat($("input[name=printumo_wrap_type]:checked").data("price-addon") || 0);
-                        totalPrice += wrapAddon;
-                        console.log("[Printumo] calculatePrice - wrapType:", wrapType, "wrapAddon:", wrapAddon, "totalPrice:", totalPrice);
-
-                        // Aktualizuj cenę w widgecie
-                        if ($(".printumo-price-amount").length) {
-                            var currency = $(".printumo-price-widget").data("currency") || "€";
-                            $(".printumo-price-amount").text(totalPrice.toFixed(2).replace(".", ",") + " " + currency);
-                            console.log("[Printumo] Zaktualizowano cenę:", totalPrice.toFixed(2) + " " + currency);
-                        } else {
-                            console.warn("[Printumo] Nie znaleziono widgetu ceny (.printumo-price-amount)");
-                        }
-                    }
 
                     function initPrintumoButtons() {
                         console.log("[Printumo] initPrintumoButtons wywołane");
@@ -570,7 +499,6 @@ class Printumo_WooCommerce_Integration {
                             } else {
                                 $(".printumo-color-picker-wrapper").removeClass("active");
                             }
-                            calculatePrice();
                         });
 
                         // Obsługa wyboru koloru
@@ -617,9 +545,6 @@ class Printumo_WooCommerce_Integration {
                                 }
                             }
                         });
-
-                        // Początkowe obliczenie ceny
-                        calculatePrice();
                     }
 
                     $(document).ready(function() {
@@ -691,30 +616,7 @@ class Printumo_WooCommerce_Integration {
             '#4B5563' => 'Gray'
         ];
 
-        // Pobierz bazową cenę (najmniejsza cena wariantu)
-        $variations = $product->get_available_variations();
-        $this->debug_log('display_canvas_configurator: Liczba wariantów: ' . count($variations));
-
-        $base_price = 0;
-        if (!empty($variations)) {
-            $prices = array_map(function($v) {
-                return floatval($v['display_price']);
-            }, $variations);
-            $base_price = min($prices);
-            $this->debug_log('display_canvas_configurator: Bazowa cena: ' . $base_price . ' (z ' . count($prices) . ' wariantów)');
-        } else {
-            $this->debug_log('display_canvas_configurator: BRAK WARIANTÓW! Bazowa cena = 0');
-        }
-
-        // Dodatki cenowe dla opcji wrappingu (przykładowe wartości)
-        $wrap_addons = [
-            'mirrored' => 0,
-            'stretched' => 15,
-            'solid_color' => 10
-        ];
-
-        $currency = get_woocommerce_currency_symbol();
-        $this->debug_log('display_canvas_configurator: Wyświetlam HTML konfiguratora. Currency: ' . $currency);
+        $this->debug_log('display_canvas_configurator: Wyświetlam HTML konfiguratora');
         ?>
         <!-- PRINTUMO CONFIGURATOR START -->
         <div class="printumo-configurator" data-debug="loaded">
@@ -723,39 +625,24 @@ class Printumo_WooCommerce_Integration {
                 <label>Choose edge finish:</label>
                 <div class="printumo-wrap-options">
                     <div class="printumo-wrap-option">
-                        <input type="radio" id="wrap_mirrored" name="printumo_wrap_type" value="mirrored" data-price-addon="<?php echo $wrap_addons['mirrored']; ?>" checked>
+                        <input type="radio" id="wrap_mirrored" name="printumo_wrap_type" value="mirrored" checked>
                         <label for="wrap_mirrored">
                             <strong>Mirrored</strong>
                             <p>Edge reflection</p>
-                            <?php if ($wrap_addons['mirrored'] > 0): ?>
-                                <span class="printumo-price-addon">+<?php echo number_format($wrap_addons['mirrored'], 2, ',', ' '); ?> <?php echo $currency; ?></span>
-                            <?php else: ?>
-                                <span class="printumo-price-addon">Base price</span>
-                            <?php endif; ?>
                         </label>
                     </div>
                     <div class="printumo-wrap-option">
-                        <input type="radio" id="wrap_stretched" name="printumo_wrap_type" value="stretched" data-price-addon="<?php echo $wrap_addons['stretched']; ?>">
+                        <input type="radio" id="wrap_stretched" name="printumo_wrap_type" value="stretched">
                         <label for="wrap_stretched">
                             <strong>Stretched</strong>
                             <p>Full stretch</p>
-                            <?php if ($wrap_addons['stretched'] > 0): ?>
-                                <span class="printumo-price-addon">+<?php echo number_format($wrap_addons['stretched'], 2, ',', ' '); ?> <?php echo $currency; ?></span>
-                            <?php else: ?>
-                                <span class="printumo-price-addon">Base price</span>
-                            <?php endif; ?>
                         </label>
                     </div>
                     <div class="printumo-wrap-option">
-                        <input type="radio" id="wrap_solid" name="printumo_wrap_type" value="solid_color" data-price-addon="<?php echo $wrap_addons['solid_color']; ?>">
+                        <input type="radio" id="wrap_solid" name="printumo_wrap_type" value="solid_color">
                         <label for="wrap_solid">
                             <strong>Solid Color</strong>
                             <p>Choose color</p>
-                            <?php if ($wrap_addons['solid_color'] > 0): ?>
-                                <span class="printumo-price-addon">+<?php echo number_format($wrap_addons['solid_color'], 2, ',', ' '); ?> <?php echo $currency; ?></span>
-                            <?php else: ?>
-                                <span class="printumo-price-addon">Base price</span>
-                            <?php endif; ?>
                         </label>
                     </div>
                 </div>
@@ -772,11 +659,6 @@ class Printumo_WooCommerce_Integration {
                     <?php endforeach; ?>
                 </div>
                 <input type="hidden" id="printumo_wrap_color_input" name="printumo_wrap_color" value="#FFFFFF">
-            </div>
-
-            <!-- Widget ceny dynamicznej -->
-            <div class="printumo-price-widget" data-base-price="<?php echo esc_attr($base_price); ?>" data-currency="<?php echo esc_attr($currency); ?>">
-                <div class="printumo-price-amount"><?php echo number_format($base_price, 2, ',', ' '); ?> <?php echo $currency; ?></div>
             </div>
         </div>
         <!-- PRINTUMO CONFIGURATOR END -->
