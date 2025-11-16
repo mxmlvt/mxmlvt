@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Printumo WooCommerce Integration
  * Description: Integracja sklepu WooCommerce z Printumo API
- * Version: 2.2.1
+ * Version: 2.2.2
  * Author: MaxDigital.pl
  */
 
@@ -44,6 +44,9 @@ class Printumo_WooCommerce_Integration {
         // Ukryj domyślną cenę WooCommerce dla produktów Printumo
         add_filter('woocommerce_variable_price_html', [$this, 'hide_default_price'], 10, 2);
         add_filter('woocommerce_get_price_html', [$this, 'hide_default_price'], 10, 2);
+
+        // Automatycznie wstaw konfigurator po selectorach wariantów
+        add_action('woocommerce_before_add_to_cart_button', [$this, 'auto_display_configurator']);
     }
 
     public function custom_variation_display($html, $args) {
@@ -143,6 +146,27 @@ class Printumo_WooCommerce_Integration {
         ob_start();
         $this->display_canvas_configurator();
         return ob_get_clean();
+    }
+
+    public function auto_display_configurator() {
+        global $product;
+
+        $this->debug_log('auto_display_configurator: Wywołane');
+
+        if (!$product || !$product->get_id()) {
+            $this->debug_log('auto_display_configurator: Brak produktu');
+            return;
+        }
+
+        $is_canvas = get_post_meta($product->get_id(), '_printumo_is_canvas', true);
+        $this->debug_log('auto_display_configurator: Product ID ' . $product->get_id() . ', is_canvas: ' . var_export($is_canvas, true));
+
+        if ($is_canvas) {
+            $this->debug_log('auto_display_configurator: Wyświetlam konfigurator dla produktu canvas');
+            $this->display_canvas_configurator();
+        } else {
+            $this->debug_log('auto_display_configurator: To nie jest produkt canvas, pomijam');
+        }
     }
 
     public function enqueue_frontend_scripts() {
