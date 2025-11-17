@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Printumo WooCommerce Integration
  * Description: Integracja sklepu WooCommerce z Printumo API
- * Version: 2.3.2
+ * Version: 2.4.0
  * Author: MaxDigital.pl
  */
 
@@ -47,7 +47,7 @@ class Printumo_WooCommerce_Integration {
     }
 
     public function custom_variation_display($html, $args) {
-        if (!in_array($args['attribute'], ['pa_size', 'pa_framing'])) {
+        if (!in_array($args['attribute'], ['pa_size', 'pa_framing', 'pa_orientation'])) {
             return $html;
         }
 
@@ -98,7 +98,7 @@ class Printumo_WooCommerce_Integration {
     }
 
     public function translate_attribute_labels($label, $name, $product) {
-        $translations = ['Size' => 'Sizes', 'Framing' => 'Frame'];
+        $translations = ['Size' => 'Sizes', 'Framing' => 'Frame', 'Orientation' => 'Orientation'];
         return $translations[$label] ?? $label;
     }
 
@@ -111,6 +111,11 @@ class Printumo_WooCommerce_Integration {
         if (!taxonomy_exists('pa_framing')) {
             wc_create_attribute(['name' => 'Framing', 'slug' => 'framing', 'type' => 'select', 'order_by' => 'menu_order', 'has_archives' => false]);
             register_taxonomy('pa_framing', ['product'], ['hierarchical' => false, 'label' => 'Framing', 'show_ui' => true, 'query_var' => true, 'rewrite' => false]);
+        }
+
+        if (!taxonomy_exists('pa_orientation')) {
+            wc_create_attribute(['name' => 'Orientation', 'slug' => 'orientation', 'type' => 'select', 'order_by' => 'menu_order', 'has_archives' => false]);
+            register_taxonomy('pa_orientation', ['product'], ['hierarchical' => false, 'label' => 'Orientation', 'show_ui' => true, 'query_var' => true, 'rewrite' => false]);
         }
     }
 
@@ -824,7 +829,9 @@ class Printumo_WooCommerce_Integration {
 
         update_post_meta($product_id, '_printumo_product_id', $printumo_product['id']);
         $is_canvas = (isset($printumo_product['print_type']['slug']) && $printumo_product['print_type']['slug'] === 'canvas');
+        $is_paper = (isset($printumo_product['print_type']['slug']) && $printumo_product['print_type']['slug'] === 'paper');
         update_post_meta($product_id, '_printumo_is_canvas', $is_canvas ? '1' : '0');
+        update_post_meta($product_id, '_printumo_is_paper', $is_paper ? '1' : '0');
 
         if (!empty($printumo_product['original_image_url'])) {
             $this->set_product_image_from_url($product_id, $printumo_product['original_image_url']);
@@ -841,7 +848,9 @@ class Printumo_WooCommerce_Integration {
         if ($category_id) $product->set_category_ids([$category_id]);
         $product->save();
         $is_canvas = (isset($printumo_product['print_type']['slug']) && $printumo_product['print_type']['slug'] === 'canvas');
+        $is_paper = (isset($printumo_product['print_type']['slug']) && $printumo_product['print_type']['slug'] === 'paper');
         update_post_meta($product->get_id(), '_printumo_is_canvas', $is_canvas ? '1' : '0');
+        update_post_meta($product->get_id(), '_printumo_is_paper', $is_paper ? '1' : '0');
         $this->create_variants($product->get_id(), $printumo_product['variants']);
     }
 
@@ -884,6 +893,7 @@ class Printumo_WooCommerce_Integration {
     private function create_variants($product_id, $variants) {
         $size_terms = [];
         $framing_terms = [];
+        $orientation_terms = [];
 
         foreach ($variants as $variant) {
             $size_name = $variant['print_product']['size']['name'];
@@ -896,6 +906,15 @@ class Printumo_WooCommerce_Integration {
             }
             if (!isset($framing_terms[$framing_slug])) {
                 $framing_terms[$framing_slug] = $framing_name;
+            }
+
+            // Dodaj orientację jeśli istnieje (dla Paper Prints)
+            if (isset($variant['print_product']['orientation']['name'])) {
+                $orientation_name = $variant['print_product']['orientation']['name'];
+                $orientation_slug = sanitize_title($orientation_name);
+                if (!isset($orientation_terms[$orientation_slug])) {
+                    $orientation_terms[$orientation_slug] = $orientation_name;
+                }
             }
         }
 
@@ -925,8 +944,24 @@ class Printumo_WooCommerce_Integration {
             }
         }
 
+        $orientation_term_ids = [];
+        foreach ($orientation_terms as $slug => $name) {
+            $term = get_term_by('slug', $slug, 'pa_orientation');
+            if (!$term) {
+                $result = wp_insert_term($name, 'pa_orientation', ['slug' => $slug]);
+                if (!is_wp_error($result)) {
+                    $orientation_term_ids[] = $result['term_id'];
+                }
+            } else {
+                $orientation_term_ids[] = $term->term_id;
+            }
+        }
+
         wp_set_object_terms($product_id, $size_term_ids, 'pa_size');
         wp_set_object_terms($product_id, $framing_term_ids, 'pa_framing');
+        if (!empty($orientation_term_ids)) {
+            wp_set_object_terms($product_id, $orientation_term_ids, 'pa_orientation');
+        }
 
         $attributes = [];
 
@@ -946,6 +981,16 @@ class Printumo_WooCommerce_Integration {
         $framing_attr->set_variation(true);
         $attributes['pa_framing'] = $framing_attr;
 
+        if (!empty($orientation_term_ids)) {
+            $orientation_attr = new WC_Product_Attribute();
+            $orientation_attr->set_id(wc_attribute_taxonomy_id_by_name('pa_orientation'));
+            $orientation_attr->set_name('pa_orientation');
+            $orientation_attr->set_options($orientation_term_ids);
+            $orientation_attr->set_visible(true);
+            $orientation_attr->set_variation(true);
+            $attributes['pa_orientation'] = $orientation_attr;
+        }
+
         $product = wc_get_product($product_id);
         $product->set_attributes($attributes);
         $product->save();
@@ -963,7 +1008,15 @@ class Printumo_WooCommerce_Integration {
                 $variation = $existing;
             }
 
-            $variation->set_attributes(['pa_size' => $size_slug, 'pa_framing' => $framing_slug]);
+            $variation_attributes = ['pa_size' => $size_slug, 'pa_framing' => $framing_slug];
+
+            // Dodaj orientację jeśli istnieje (dla Paper Prints)
+            if (isset($variant['print_product']['orientation']['name'])) {
+                $orientation_slug = sanitize_title($variant['print_product']['orientation']['name']);
+                $variation_attributes['pa_orientation'] = $orientation_slug;
+            }
+
+            $variation->set_attributes($variation_attributes);
             $price = $variant['price'] / 100;
             $variation->set_regular_price($price);
             $variation->set_manage_stock(false);
