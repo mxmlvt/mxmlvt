@@ -19,10 +19,6 @@ function get_variation_category_mapping() {
         'Canvas Print' => 'canvas-prints',
         'canvas prints' => 'canvas-prints',
         'Canvas Prints' => 'canvas-prints',
-        'paper print' => 'paper-prints',
-        'Paper Print' => 'paper-prints',
-        'paper prints' => 'paper-prints',
-        'Paper Prints' => 'paper-prints',
     );
 }
 

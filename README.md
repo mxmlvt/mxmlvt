@@ -54,8 +54,6 @@ function get_variation_category_mapping() {
         'Original' => 'originals',
         'canvas print' => 'canvas-prints',
         'Canvas Print' => 'canvas-prints',
-        'paper print' => 'paper-prints',
-        'Paper Print' => 'paper-prints',
         // Dodaj więcej mapowań...
     );
 }
@@ -68,9 +66,9 @@ function get_variation_category_mapping() {
 ### Struktura produktów
 
 1. **Utwórz produkt zmienny (Variable Product)**
-2. **Dodaj atrybuty** (np. "Type" z wartościami: Original, Canvas Print, Paper Print)
+2. **Dodaj atrybuty** (np. "Type" z wartościami: Original, Canvas Print)
 3. **Utwórz warianty** dla każdego typu
-4. **Przypisz kategorie** zgodnie z mapowaniem (originals, canvas-prints, paper-prints)
+4. **Przypisz kategorie** zgodnie z mapowaniem (originals, canvas-prints)
 
 ## 🎨 Jak to działa
 
