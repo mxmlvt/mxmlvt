@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Let's Fight - Mapa Klubów
  * Description: Integracja mapy Mapbox z JetEngine dla klubów sportowych
- * Version: 1.1.0
+ * Version: 1.1.2
  * Author: MaxDigital.pl
  * Text Domain: letsfight-mapa
  * Requires at least: 5.0
@@ -26,7 +26,7 @@ class LetsFight_Mapa {
      * Wersja wtyczki
      * @var string
      */
-    private $version = '1.1.1';
+    private $version = '1.1.2';
 
     /**
      * Debug mode
@@ -227,6 +227,16 @@ class LetsFight_Mapa {
             ]);
         }
 
+        // Skanuj dostępne taksonomie dla CPT 'kluby'
+        $kluby_taxonomies = get_object_taxonomies('kluby', 'objects');
+        $this->debug_log('Taksonomie zarejestrowane dla CPT \'kluby\'', [
+            'count' => count($kluby_taxonomies),
+            'nazwy' => array_keys($kluby_taxonomies),
+            'szczegóły' => array_map(function($tax) {
+                return $tax->label . ' (slug: ' . $tax->name . ')';
+            }, $kluby_taxonomies),
+        ]);
+
         // Sprawdź czy shortcody JetSmartFilters są zarejestrowane
         global $shortcode_tags;
         $this->debug_log('Sprawdzanie shortcode\'ów JetSmartFilters', [
@@ -235,6 +245,13 @@ class LetsFight_Mapa {
             'jet-smart-filters-remove-filters' => isset($shortcode_tags['jet-smart-filters-remove-filters']) ? 'ZAREJESTROWANY' : 'BRAK',
             'jet_engine_data' => isset($shortcode_tags['jet_engine_data']) ? 'ZAREJESTROWANY' : 'BRAK',
         ]);
+
+        // Lista WSZYSTKICH zarejestrowanych shortcodów (żeby zobaczyć jak faktycznie nazywają się shortcody)
+        $all_shortcodes = array_keys($shortcode_tags);
+        $jet_shortcodes = array_filter($all_shortcodes, function($sc) {
+            return strpos($sc, 'jet') !== false;
+        });
+        $this->debug_log('Wszystkie shortcody zaczynające się od "jet"', $jet_shortcodes);
 
         // Rozpocznij buforowanie outputu
         ob_start();

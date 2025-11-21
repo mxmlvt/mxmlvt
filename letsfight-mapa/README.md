@@ -2,7 +2,7 @@
 
 Profesjonalna wtyczka WordPress do wyświetlania klubów sportów walki z integracją **JetEngine** i **JetSmartFilters** oraz interaktywną mapą **Mapbox GL JS**.
 
-![Version](https://img.shields.io/badge/version-1.1.1-orange)
+![Version](https://img.shields.io/badge/version-1.1.2-orange)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple)
 
@@ -432,6 +432,12 @@ Wtyczka automatycznie włączy verbose logging w konsoli i wyświetli panel debu
 ---
 
 ## 📜 Changelog
+
+### v1.1.2 (2025-11-21)
+- ✨ **Skanowanie dostępnych taksonomii dla CPT 'kluby'** - pokazuje wszystkie zarejestrowane taksonomie
+- ✨ **Lista wszystkich shortcodów zaczynających się od "jet"** - wykrywa faktyczne nazwy shortcodów
+- 🐛 Debug pomaga znaleźć prawidłową nazwę taksonomii miasta
+- 🐛 Debug pomaga zidentyfikować dlaczego JetSmartFilters shortcodes nie są dostępne
 
 ### v1.1.1 (2025-11-21)
 - ✨ **Dodano zaawansowany debug mode** - widoczny panel na dole strony z pełnym logiem
