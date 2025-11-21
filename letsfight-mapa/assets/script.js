@@ -1,7 +1,7 @@
 /**
  * Let's Fight - Mapa Klubów
  * JavaScript dla wyszukiwarki z integracją Mapbox i JetEngine
- * @version 1.4.0
+ * @version 1.4.1
  */
 
 (function($) {
@@ -275,11 +275,36 @@
         console.log('[LetsFight Mapa] Dyscyplina:', dyscyplina || '(wszystkie)');
         console.log('[LetsFight Mapa] Wyszukiwanie:', searchQuery || '(brak)');
 
+        const $allItems = $('.jet-listing-grid__item');
+        console.log('[LetsFight Mapa] Liczba itemów do przeszukania:', $allItems.length);
+
+        // DEBUG: Pokaż strukturę pierwszego itemu
+        if (DEBUG && $allItems.length > 0 && dyscyplina) {
+            const $firstItem = $allItems.first();
+            console.log('[LetsFight Mapa] 🔍 DEBUG - Struktura pierwszego itemu:');
+            console.log('[LetsFight Mapa]   Klasy:', $firstItem.attr('class'));
+            console.log('[LetsFight Mapa]   Linki z term-*:', $firstItem.find('a[class*="term-"]').map(function() {
+                return $(this).attr('class');
+            }).get());
+            console.log('[LetsFight Mapa]   Elementy .dyscypliny:', $firstItem.find('.dyscypliny, [class*="dyscyplin"]').map(function() {
+                return {class: $(this).attr('class'), text: $(this).text()};
+            }).get());
+            console.log('[LetsFight Mapa]   Linki /dyscypliny/:', $firstItem.find('a[href*="/dyscypliny/"]').map(function() {
+                return $(this).attr('href');
+            }).get());
+            console.log('[LetsFight Mapa]   Linki .jet-listing-dynamic-terms__link:', $firstItem.find('.jet-listing-dynamic-terms__link').map(function() {
+                return {class: $(this).attr('class'), text: $(this).text(), href: $(this).attr('href')};
+            }).get());
+        }
+
         let visibleCount = 0;
 
-        $('.jet-listing-grid__item').each(function() {
+        $allItems.each(function(itemIndex) {
             const $item = $(this);
             let visible = true;
+            const postClasses = $item.attr('class') || '';
+            const postIdMatch = postClasses.match(/jet-listing-dynamic-post-(\d+)/);
+            const postId = postIdMatch ? postIdMatch[1] : 'unknown';
 
             // Filtr dyscypliny - ULEPSZONE WYSZUKIWANIE
             if (dyscyplina) {
@@ -333,12 +358,7 @@
 
                 if (!hasDyscyplina) {
                     visible = false;
-                    if (DEBUG) {
-                        console.log('[LetsFight Mapa] ❌ Item nie ma dyscypliny:', dyscyplina, {
-                            post_id: $item.attr('class'),
-                            sprawdzone: 'klasy CSS, linki, tekst, href'
-                        });
-                    }
+                    console.log('[LetsFight Mapa] ❌ Post', postId, '- nie ma dyscypliny:', dyscyplina);
                 }
             }
 
@@ -672,19 +692,37 @@
     function getVisiblePostIds() {
         const postIds = [];
 
-        $('.jet-listing-grid__item:visible').each(function() {
+        console.log('[LetsFight Mapa] ========== getVisiblePostIds START ==========');
+
+        // Szukaj itemów w kontenerze listy (NIE :visible, bo widok może być ukryty)
+        const $items = $('.letsfight-view--lista .jet-listing-grid__item');
+        console.log('[LetsFight Mapa] Znaleziono itemów w kontenerze:', $items.length);
+
+        $items.each(function(index) {
+            const $item = $(this);
+
+            // Sprawdź czy item NIE jest ukryty przez filtry (fadeOut dodaje display:none inline)
+            const isHiddenByFilter = $item.css('display') === 'none';
+
             // JetEngine dodaje klasę: jet-listing-dynamic-post-{ID}
-            const classes = $(this).attr('class') || '';
+            const classes = $item.attr('class') || '';
             const match = classes.match(/jet-listing-dynamic-post-(\d+)/);
 
             if (match && match[1]) {
                 const postId = parseInt(match[1], 10);
-                postIds.push(postId);
-                debugLog('  → Znaleziono post ID:', postId);
+
+                if (!isHiddenByFilter) {
+                    postIds.push(postId);
+                    console.log('[LetsFight Mapa]   ✅ Item', index, '- post ID:', postId, '(widoczny)');
+                } else {
+                    console.log('[LetsFight Mapa]   ⊘ Item', index, '- post ID:', postId, '(ukryty przez filtr)');
+                }
+            } else {
+                console.error('[LetsFight Mapa]   ❌ Item', index, '- BRAK post ID w klasach:', classes);
             }
         });
 
-        console.log('[LetsFight Mapa] getVisiblePostIds - znaleziono:', postIds.length, 'klubów');
+        console.log('[LetsFight Mapa] ✅ getVisiblePostIds - znaleziono:', postIds.length, 'widocznych klubów');
         return postIds;
     }
 
