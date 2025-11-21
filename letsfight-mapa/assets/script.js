@@ -398,16 +398,15 @@
                 }
             }
 
-            // Pokaż/ukryj - używamy .show()/.hide() zamiast fadeIn/fadeOut
-            // bo JetEngine może nadpisywać style inline
+            // Pokaż/ukryj - używamy CSS class z !important
             console.log('[LetsFight Mapa] 🎬 Post', postId, '- visible =', visible);
             if (visible) {
-                $item.show();
+                $item.removeClass('letsfight-item-hidden');
                 visibleCount++;
-                console.log('[LetsFight Mapa] 👁️ Post', postId, '- POKAZANO (show)');
+                console.log('[LetsFight Mapa] 👁️ Post', postId, '- POKAZANO (removeClass)');
             } else {
-                $item.hide();
-                console.log('[LetsFight Mapa] 🙈 Post', postId, '- UKRYTO (hide)');
+                $item.addClass('letsfight-item-hidden');
+                console.log('[LetsFight Mapa] 🙈 Post', postId, '- UKRYTO (addClass)');
             }
         });
 
@@ -632,7 +631,7 @@
                 // Stwórz własny marker (SVG pin)
                 const el = createMarkerElement();
 
-                // Popup z informacjami
+                // Popup z informacjami (pokazuje się na kliknięcie)
                 const popup = createMarkerPopup(club);
 
                 // Dodaj marker do mapy
@@ -640,6 +639,9 @@
                     .setLngLat([club.lng, club.lat])
                     .setPopup(popup)
                     .addTo(map);
+
+                // Tooltip z nazwą klubu (pokazuje się na hover)
+                el.setAttribute('title', club.title);
 
                 // Kliknięcie markera → scroll do karty
                 el.addEventListener('click', function() {
