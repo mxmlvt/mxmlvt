@@ -398,15 +398,16 @@
                 }
             }
 
-            // Pokaż/ukryj
+            // Pokaż/ukryj - używamy .show()/.hide() zamiast fadeIn/fadeOut
+            // bo JetEngine może nadpisywać style inline
             console.log('[LetsFight Mapa] 🎬 Post', postId, '- visible =', visible);
             if (visible) {
-                $item.fadeIn(200);
+                $item.show();
                 visibleCount++;
-                console.log('[LetsFight Mapa] 👁️ Post', postId, '- POKAZANO (fadeIn)');
+                console.log('[LetsFight Mapa] 👁️ Post', postId, '- POKAZANO (show)');
             } else {
-                $item.fadeOut(200);
-                console.log('[LetsFight Mapa] 🙈 Post', postId, '- UKRYTO (fadeOut)');
+                $item.hide();
+                console.log('[LetsFight Mapa] 🙈 Post', postId, '- UKRYTO (hide)');
             }
         });
 
