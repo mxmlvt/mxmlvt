@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Let's Fight - Mapa Klubów
  * Description: Integracja mapy Mapbox z JetEngine dla klubów sportowych
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: MaxDigital.pl
  * Text Domain: letsfight-mapa
  * Requires at least: 5.0
@@ -26,7 +26,7 @@ class LetsFight_Mapa {
      * Wersja wtyczki
      * @var string
      */
-    private $version = '1.2.0';
+    private $version = '1.2.1';
 
     /**
      * Debug mode
@@ -360,8 +360,29 @@ class LetsFight_Mapa {
             <!-- Widok listy (JetEngine Grid) -->
             <div class="letsfight-view letsfight-view--lista letsfight-view--active">
                 <?php
-                // Poprawna składnia shortcode JetEngine
-                echo do_shortcode('[jet_engine_data component="listings_grid" listing_id="' . esc_attr($atts['listing_id']) . '"]');
+                // Dodaj debug przed renderowaniem
+                $listing_shortcode = '[jet_engine component="listings_grid" listing_id="' . esc_attr($atts['listing_id']) . '"]';
+                $this->debug_log('Renderowanie listingu JetEngine', [
+                    'shortcode' => $listing_shortcode,
+                    'listing_id' => $atts['listing_id'],
+                ]);
+
+                // Renderuj listing
+                $listing_output = do_shortcode($listing_shortcode);
+
+                if (empty(trim(strip_tags($listing_output)))) {
+                    $this->debug_log('BŁĄD: Listing JetEngine zwrócił pusty output!');
+                    echo '<div style="padding: 20px; background: #fff3cd; color: #856404; border-radius: 8px; margin: 20px 0;">';
+                    echo '<strong>⚠️ Brak klubów do wyświetlenia.</strong><br>';
+                    echo 'Shortcode: <code>' . esc_html($listing_shortcode) . '</code>';
+                    echo '</div>';
+                } else {
+                    $this->debug_log('Listing JetEngine renderowany pomyślnie', [
+                        'output_length' => strlen($listing_output),
+                    ]);
+                }
+
+                echo $listing_output;
                 ?>
             </div>
 
@@ -420,7 +441,11 @@ class LetsFight_Mapa {
 
             // Jeśli brak współrzędnych - spróbuj geocodować adres
             if (empty($lat) || empty($lng)) {
-                $address = get_post_meta($post_id, 'adres', true);
+                // Spróbuj najpierw 'adres_dla_mapy', potem 'adres' (fallback)
+                $address = get_post_meta($post_id, 'adres_dla_mapy', true);
+                if (empty($address)) {
+                    $address = get_post_meta($post_id, 'adres', true);
+                }
 
                 if (!empty($address)) {
                     $coords = $this->geocode_address($address);

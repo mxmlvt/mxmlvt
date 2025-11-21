@@ -1,7 +1,7 @@
 /**
  * Let's Fight - Mapa Klubów
  * JavaScript dla wyszukiwarki z integracją Mapbox i JetEngine
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 (function($) {
@@ -26,25 +26,45 @@
      * Inicjalizacja przy załadowaniu DOM
      */
     $(document).ready(function() {
+        console.log('[LetsFight Mapa] ========== INIT START ==========');
+        console.log('[LetsFight Mapa] DEBUG mode:', DEBUG);
+
         if ($('.letsfight-wyszukiwarka').length === 0) {
-            debugLog('Nie znaleziono kontenera wyszukiwarki');
+            console.error('[LetsFight Mapa] ❌ Nie znaleziono kontenera .letsfight-wyszukiwarka');
             return;
         }
+        console.log('[LetsFight Mapa] ✅ Kontener .letsfight-wyszukiwarka znaleziony');
 
         // Sprawdź czy Mapbox jest załadowany
         if (typeof mapboxgl === 'undefined') {
-            console.error('[LetsFight Mapa] Mapbox GL JS nie jest załadowany!');
+            console.error('[LetsFight Mapa] ❌ Mapbox GL JS nie jest załadowany!');
             return;
         }
+        console.log('[LetsFight Mapa] ✅ Mapbox GL JS załadowany');
 
         // Sprawdź czy mamy token
         if (!letsfightMap || !letsfightMap.mapboxToken) {
-            console.error('[LetsFight Mapa] Brak tokenu Mapbox!');
+            console.error('[LetsFight Mapa] ❌ Brak tokenu Mapbox!', letsfightMap);
             return;
+        }
+        console.log('[LetsFight Mapa] ✅ Token Mapbox dostępny:', letsfightMap.mapboxToken.substring(0, 10) + '...');
+
+        // Sprawdź czy #letsfight-map istnieje
+        const mapContainer = document.getElementById('letsfight-map');
+        if (mapContainer) {
+            console.log('[LetsFight Mapa] ✅ Container #letsfight-map istnieje:', {
+                width: mapContainer.offsetWidth,
+                height: mapContainer.offsetHeight,
+                display: window.getComputedStyle(mapContainer).display,
+                visibility: window.getComputedStyle(mapContainer).visibility
+            });
+        } else {
+            console.warn('[LetsFight Mapa] ⚠️ Container #letsfight-map NIE ISTNIEJE w DOM!');
         }
 
         debugLog('Inicjalizacja wtyczki');
         initWyszukiwarka();
+        console.log('[LetsFight Mapa] ========== INIT COMPLETE ==========');
     });
 
     /**
@@ -77,8 +97,11 @@
      * Inicjalizacja przełącznika Lista/Mapa
      */
     function initToggleView() {
+        console.log('[LetsFight Mapa] initToggleView() - liczba przycisków:', $('.letsfight-toggle__btn').length);
+
         $('.letsfight-toggle__btn').on('click', function() {
             const view = $(this).data('view');
+            console.log('[LetsFight Mapa] ========== TOGGLE CLICKED: ' + view + ' ==========');
             debugLog('Przełączanie widoku na:', view);
 
             // Zmień aktywny przycisk
@@ -89,11 +112,17 @@
             $('.letsfight-view').removeClass('letsfight-view--active');
             $(`.letsfight-view--${view}`).addClass('letsfight-view--active');
 
+            console.log('[LetsFight Mapa] Widok zmieniony na:', view);
+
             // Obsługa mapy
             if (view === 'mapa') {
+                console.log('[LetsFight Mapa] Widok MAPA - isMapInitialized:', isMapInitialized);
+
                 if (!isMapInitialized) {
+                    console.log('[LetsFight Mapa] Wywołanie initMap()...');
                     initMap();
                 } else {
+                    console.log('[LetsFight Mapa] Mapa już zainicjalizowana - resize + update markerów');
                     // Odśwież rozmiar mapy i markery
                     setTimeout(function() {
                         if (map) {
