@@ -2,7 +2,7 @@
 
 Profesjonalna wtyczka WordPress do wyświetlania klubów sportów walki z integracją **JetEngine** i **JetSmartFilters** oraz interaktywną mapą **Mapbox GL JS**.
 
-![Version](https://img.shields.io/badge/version-1.1.0-orange)
+![Version](https://img.shields.io/badge/version-1.1.1-orange)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple)
 
@@ -420,11 +420,28 @@ define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);
 ```
 
-Wtyczka automatycznie włączy verbose logging w konsoli.
+Po włączeniu debug mode:
+- **Panel debug na dole strony** - wyświetla wszystkie logi w czasie rzeczywistym
+- **Textarea do kopiowania** - możesz skopiować cały log i przesłać w zgłoszeniu błędu
+- **Sprawdzanie shortcode'ów** - pokazuje czy JetSmartFilters i JetEngine są zarejestrowane
+- **Logi taxonomii** - wyświetla dokładnie co zwraca `get_terms()` dla miast
+- **Timestamp każdego wpisu** - dokładny czas każdej operacji
+
+Wtyczka automatycznie włączy verbose logging w konsoli i wyświetli panel debug na dole strony frontendu.
 
 ---
 
 ## 📜 Changelog
+
+### v1.1.1 (2025-11-21)
+- ✨ **Dodano zaawansowany debug mode** - widoczny panel na dole strony z pełnym logiem
+- ✨ **Poprawiono ładowanie shortcode'ów** - zmieniono priorytet rejestracji na 999
+- ✨ **Zawsze ładuj assety na froncie** - fix dla dynamicznych shortcode'ów
+- ✨ **Sprawdzanie czy shortcody są zarejestrowane** - wykrywa problemy z JetSmartFilters
+- ✨ **Debug log dla taksonomii miast** - pokazuje dokładnie co zwraca get_terms()
+- ✨ **Kopiowalne logi debug** - textarea z logiem do wklejenia w zgłoszeniu błędu
+- 🐛 Fix dla pustego dropdown miasta - dodano sprawdzanie błędów get_terms()
+- 🐛 Poprawiono wykrywanie błędów WP_Error przy pobieraniu taxonomii
 
 ### v1.1.0 (2025-11-21)
 - ✨ Kompletna przebudowa kodu PHP

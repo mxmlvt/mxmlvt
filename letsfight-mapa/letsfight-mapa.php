@@ -26,7 +26,13 @@ class LetsFight_Mapa {
      * Wersja wtyczki
      * @var string
      */
-    private $version = '1.1.0';
+    private $version = '1.1.1';
+
+    /**
+     * Debug mode
+     * @var bool
+     */
+    private $debug = false;
 
     /**
      * Singleton instance
@@ -48,6 +54,9 @@ class LetsFight_Mapa {
      * Konstruktor - rejestracja hooków
      */
     public function __construct() {
+        // Debug mode
+        $this->debug = defined('WP_DEBUG') && WP_DEBUG;
+
         // Sprawdź wymagane pluginy przy aktywacji
         register_activation_hook(__FILE__, [$this, 'check_requirements']);
 
@@ -55,16 +64,23 @@ class LetsFight_Mapa {
         add_action('init', [$this, 'register_meta_fields']);
         add_action('admin_notices', [$this, 'admin_notices']);
 
-        // Shortcode
-        add_shortcode('letsfight_wyszukiwarka_miasto', [$this, 'render_wyszukiwarka']);
-        add_shortcode('letsfight_club_panel', [$this, 'render_wyszukiwarka']); // Alias
+        // Shortcode - priorytet 999 żeby JetEngine i JetSmartFilters załadowały się wcześniej
+        add_action('init', function() {
+            add_shortcode('letsfight_wyszukiwarka_miasto', [$this, 'render_wyszukiwarka']);
+            add_shortcode('letsfight_club_panel', [$this, 'render_wyszukiwarka']); // Alias
+        }, 999);
 
         // AJAX
         add_action('wp_ajax_letsfight_get_clubs_coords', [$this, 'ajax_get_clubs_coords']);
         add_action('wp_ajax_nopriv_letsfight_get_clubs_coords', [$this, 'ajax_get_clubs_coords']);
 
-        // Assets
-        add_action('wp_enqueue_scripts', [$this, 'enqueue_assets']);
+        // Assets - ładuj zawsze na froncie
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_assets'], 999);
+
+        // Debug footer
+        if ($this->debug && !is_admin()) {
+            add_action('wp_footer', [$this, 'output_debug_info'], 999);
+        }
     }
 
     /**
@@ -127,16 +143,8 @@ class LetsFight_Mapa {
      * Załaduj assety (CSS, JS)
      */
     public function enqueue_assets() {
-        // Sprawdź czy jesteśmy na stronie z shortcodem
-        global $post;
-        if (!is_a($post, 'WP_Post')) {
-            return;
-        }
-
-        $has_shortcode = has_shortcode($post->post_content, 'letsfight_wyszukiwarka_miasto') ||
-                         has_shortcode($post->post_content, 'letsfight_club_panel');
-
-        if (!$has_shortcode && !is_singular() && !is_page() && !is_archive()) {
+        // Ładuj zawsze na froncie (shortcode może być wywoływany przez JetEngine)
+        if (is_admin()) {
             return;
         }
 
@@ -165,7 +173,7 @@ class LetsFight_Mapa {
             'ajaxurl' => admin_url('admin-ajax.php'),
             'mapboxToken' => $this->mapbox_token,
             'nonce' => wp_create_nonce('letsfight_map_nonce'),
-            'debug' => defined('WP_DEBUG') && WP_DEBUG,
+            'debug' => $this->debug,
         ]);
     }
 
@@ -173,8 +181,15 @@ class LetsFight_Mapa {
      * Renderowanie shortcode'a wyszukiwarki
      */
     public function render_wyszukiwarka($atts) {
+        // Debug: log shortcode call
+        $this->debug_log('Wywołanie shortcode letsfight_wyszukiwarka_miasto');
+
         // Sprawdź wymagane pluginy
         if (!class_exists('Jet_Engine') || !class_exists('Jet_Smart_Filters')) {
+            $this->debug_log('BŁĄD: Brak wymaganych pluginów', [
+                'Jet_Engine' => class_exists('Jet_Engine') ? 'OK' : 'BRAK',
+                'Jet_Smart_Filters' => class_exists('Jet_Smart_Filters') ? 'OK' : 'BRAK',
+            ]);
             return '<div class="letsfight-error" style="padding: 20px; background: #f8d7da; color: #721c24; border-radius: 8px;">
                 <strong>Błąd:</strong> Wymagane pluginy JetEngine i JetSmartFilters nie są aktywne.
             </div>';
@@ -187,8 +202,11 @@ class LetsFight_Mapa {
             'filter_search' => '516',
         ], $atts);
 
+        $this->debug_log('Parametry shortcode', $atts);
+
         // Wykryj miasto z URL
         $miasto_slug = $this->get_city_from_url();
+        $this->debug_log('Wykryte miasto z URL', $miasto_slug ?: 'brak');
 
         // Pobierz listę miast
         $miasta = get_terms([
@@ -198,9 +216,25 @@ class LetsFight_Mapa {
             'order' => 'ASC',
         ]);
 
+        // Debug: miasta
         if (is_wp_error($miasta)) {
+            $this->debug_log('BŁĄD: get_terms zwróciło WP_Error', $miasta->get_error_message());
             $miasta = [];
+        } else {
+            $this->debug_log('Pobrano miast', [
+                'count' => count($miasta),
+                'miasta' => array_map(function($m) { return $m->name . ' (' . $m->slug . ')'; }, $miasta),
+            ]);
         }
+
+        // Sprawdź czy shortcody JetSmartFilters są zarejestrowane
+        global $shortcode_tags;
+        $this->debug_log('Sprawdzanie shortcode\'ów JetSmartFilters', [
+            'jet-smart-filters-select' => isset($shortcode_tags['jet-smart-filters-select']) ? 'ZAREJESTROWANY' : 'BRAK',
+            'jet-smart-filters-search' => isset($shortcode_tags['jet-smart-filters-search']) ? 'ZAREJESTROWANY' : 'BRAK',
+            'jet-smart-filters-remove-filters' => isset($shortcode_tags['jet-smart-filters-remove-filters']) ? 'ZAREJESTROWANY' : 'BRAK',
+            'jet_engine_data' => isset($shortcode_tags['jet_engine_data']) ? 'ZAREJESTROWANY' : 'BRAK',
+        ]);
 
         // Rozpocznij buforowanie outputu
         ob_start();
@@ -430,6 +464,73 @@ class LetsFight_Mapa {
         }
 
         return null;
+    }
+
+    /**
+     * Logowanie debug
+     */
+    private $debug_messages = [];
+
+    private function debug_log($message, $data = null) {
+        if (!$this->debug) {
+            return;
+        }
+
+        $log_entry = [
+            'time' => current_time('H:i:s'),
+            'message' => $message,
+            'data' => $data,
+        ];
+
+        $this->debug_messages[] = $log_entry;
+
+        // Zapisz do error_log
+        $log_text = "[LetsFight Mapa {$log_entry['time']}] {$message}";
+        if ($data !== null) {
+            $log_text .= ': ' . print_r($data, true);
+        }
+        error_log($log_text);
+    }
+
+    /**
+     * Wyświetl informacje debug w stopce
+     */
+    public function output_debug_info() {
+        if (empty($this->debug_messages)) {
+            return;
+        }
+
+        ?>
+        <div id="letsfight-debug" style="position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; color: #0f0; padding: 20px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; z-index: 999999; border-top: 3px solid #f79716;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <strong style="color: #f79716;">🐛 LetsFight Mapa - Debug Log</strong>
+                <button onclick="this.parentElement.parentElement.style.display='none'" style="background: #f79716; color: #1a1a1a; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px;">Zamknij</button>
+            </div>
+            <div style="background: #000; padding: 10px; border-radius: 5px; overflow-x: auto;">
+                <?php foreach ($this->debug_messages as $entry): ?>
+                    <div style="margin-bottom: 10px; border-left: 3px solid #f79716; padding-left: 10px;">
+                        <div style="color: #999;">[<?php echo esc_html($entry['time']); ?>]</div>
+                        <div style="color: #0f0; font-weight: bold;"><?php echo esc_html($entry['message']); ?></div>
+                        <?php if ($entry['data'] !== null): ?>
+                            <pre style="color: #ff0; margin: 5px 0 0 0; white-space: pre-wrap; word-wrap: break-word;"><?php echo esc_html(print_r($entry['data'], true)); ?></pre>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <div style="margin-top: 10px; padding: 10px; background: #333; border-radius: 5px;">
+                <strong style="color: #f79716;">📋 Kopiuj poniższy tekst do zgłoszenia błędu:</strong>
+                <textarea readonly style="width: 100%; height: 100px; margin-top: 5px; background: #000; color: #0f0; border: 1px solid #f79716; padding: 10px; font-family: monospace; font-size: 11px;"><?php
+                    foreach ($this->debug_messages as $entry) {
+                        echo "[{$entry['time']}] {$entry['message']}";
+                        if ($entry['data'] !== null) {
+                            echo "\n" . print_r($entry['data'], true);
+                        }
+                        echo "\n---\n";
+                    }
+                ?></textarea>
+            </div>
+        </div>
+        <?php
     }
 }
 
