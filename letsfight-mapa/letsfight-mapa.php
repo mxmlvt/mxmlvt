@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Let's Fight - Mapa Klubów
  * Description: Integracja mapy Mapbox z JetEngine dla klubów sportowych
- * Version: 1.1.2
+ * Version: 1.2.0
  * Author: MaxDigital.pl
  * Text Domain: letsfight-mapa
  * Requires at least: 5.0
@@ -26,7 +26,7 @@ class LetsFight_Mapa {
      * Wersja wtyczki
      * @var string
      */
-    private $version = '1.1.2';
+    private $version = '1.2.0';
 
     /**
      * Debug mode
@@ -93,9 +93,7 @@ class LetsFight_Mapa {
             $errors[] = 'JetEngine nie jest zainstalowany lub aktywny.';
         }
 
-        if (!class_exists('Jet_Smart_Filters')) {
-            $errors[] = 'JetSmartFilters nie jest zainstalowany lub aktywny.';
-        }
+        // JetSmartFilters już nie jest wymagany - mamy własne filtry!
 
         if (!empty($errors)) {
             deactivate_plugins(plugin_basename(__FILE__));
@@ -111,10 +109,10 @@ class LetsFight_Mapa {
      * Pokaż powiadomienia w panelu admina
      */
     public function admin_notices() {
-        if (!class_exists('Jet_Engine') || !class_exists('Jet_Smart_Filters')) {
+        if (!class_exists('Jet_Engine')) {
             ?>
             <div class="notice notice-error">
-                <p><strong>Let's Fight - Mapa Klubów:</strong> Wymagane pluginy JetEngine i JetSmartFilters nie są aktywne.</p>
+                <p><strong>Let's Fight - Mapa Klubów:</strong> Wymagany plugin JetEngine nie jest aktywny.</p>
             </div>
             <?php
         }
@@ -184,16 +182,20 @@ class LetsFight_Mapa {
         // Debug: log shortcode call
         $this->debug_log('Wywołanie shortcode letsfight_wyszukiwarka_miasto');
 
-        // Sprawdź wymagane pluginy
-        if (!class_exists('Jet_Engine') || !class_exists('Jet_Smart_Filters')) {
-            $this->debug_log('BŁĄD: Brak wymaganych pluginów', [
-                'Jet_Engine' => class_exists('Jet_Engine') ? 'OK' : 'BRAK',
-                'Jet_Smart_Filters' => class_exists('Jet_Smart_Filters') ? 'OK' : 'BRAK',
+        // Sprawdź wymagane pluginy (tylko JetEngine jest wymagany)
+        if (!class_exists('Jet_Engine')) {
+            $this->debug_log('BŁĄD: Brak wymaganego pluginu', [
+                'Jet_Engine' => 'BRAK',
             ]);
             return '<div class="letsfight-error" style="padding: 20px; background: #f8d7da; color: #721c24; border-radius: 8px;">
-                <strong>Błąd:</strong> Wymagane pluginy JetEngine i JetSmartFilters nie są aktywne.
+                <strong>Błąd:</strong> Wymagany plugin JetEngine nie jest aktywny.
             </div>';
         }
+
+        $this->debug_log('Sprawdzanie pluginów', [
+            'Jet_Engine' => 'OK',
+            'Jet_Smart_Filters' => class_exists('Jet_Smart_Filters') ? 'OK (opcjonalny)' : 'BRAK (używamy własnych filtrów)',
+        ]);
 
         // Parametry shortcode
         $atts = shortcode_atts([
@@ -208,9 +210,9 @@ class LetsFight_Mapa {
         $miasto_slug = $this->get_city_from_url();
         $this->debug_log('Wykryte miasto z URL', $miasto_slug ?: 'brak');
 
-        // Pobierz listę miast
+        // Pobierz listę miast (POPRAWIONA NAZWA: miasto, nie miasta!)
         $miasta = get_terms([
-            'taxonomy' => 'miasta',
+            'taxonomy' => 'miasto',
             'hide_empty' => false,
             'orderby' => 'name',
             'order' => 'ASC',
@@ -224,6 +226,25 @@ class LetsFight_Mapa {
             $this->debug_log('Pobrano miast', [
                 'count' => count($miasta),
                 'miasta' => array_map(function($m) { return $m->name . ' (' . $m->slug . ')'; }, $miasta),
+            ]);
+        }
+
+        // Pobierz listę dyscyplin
+        $dyscypliny = get_terms([
+            'taxonomy' => 'dyscypliny',
+            'hide_empty' => false,
+            'orderby' => 'name',
+            'order' => 'ASC',
+        ]);
+
+        // Debug: dyscypliny
+        if (is_wp_error($dyscypliny)) {
+            $this->debug_log('BŁĄD: get_terms dla dyscyplin zwróciło WP_Error', $dyscypliny->get_error_message());
+            $dyscypliny = [];
+        } else {
+            $this->debug_log('Pobrano dyscyplin', [
+                'count' => count($dyscypliny),
+                'dyscypliny' => array_map(function($d) { return $d->name . ' (' . $d->slug . ')'; }, $dyscypliny),
             ]);
         }
 
@@ -280,33 +301,33 @@ class LetsFight_Mapa {
                         </select>
                     </div>
 
-                    <!-- Przycisk szukaj (pokazuje się po zmianie miasta) -->
-                    <button class="letsfight-btn letsfight-btn--search" style="display: none;">
-                        <span class="letsfight-btn__icon">🔍</span>
-                        <span class="letsfight-btn__text">Szukaj</span>
-                    </button>
-
-                    <!-- Filtr dyscypliny (JetSmartFilters) -->
+                    <!-- Filtr dyscypliny (WŁASNY SELECT - JetSmartFilters nie działa) -->
                     <div class="letsfight-filter letsfight-filter--dyscyplina">
                         <label class="letsfight-filter__label">DYSCYPLINA</label>
-                        <?php
-                        echo do_shortcode('[jet-smart-filters-select filter_id="' . esc_attr($atts['filter_dyscyplina']) . '" provider="jet-engine" query_id="default" apply_type="ajax" placeholder="Wybierz dyscyplinę"]');
-                        ?>
+                        <select class="letsfight-select letsfight-dyscyplina-select">
+                            <option value="">Wszystkie dyscypliny</option>
+                            <?php if (!empty($dyscypliny)): ?>
+                                <?php foreach ($dyscypliny as $dyscyplina): ?>
+                                    <option value="<?php echo esc_attr($dyscyplina->slug); ?>">
+                                        <?php echo esc_html($dyscyplina->name); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
                     </div>
 
-                    <!-- Wyszukiwarka (JetSmartFilters) -->
+                    <!-- Wyszukiwarka (WŁASNE POLE - JetSmartFilters nie działa) -->
                     <div class="letsfight-filter letsfight-filter--search">
                         <label class="letsfight-filter__label">WYSZUKAJ KLUB</label>
-                        <?php
-                        echo do_shortcode('[jet-smart-filters-search filter_id="' . esc_attr($atts['filter_search']) . '" provider="jet-engine" query_id="default" apply_type="ajax" placeholder="Szukaj..."]');
-                        ?>
+                        <input type="text" class="letsfight-input letsfight-search-input" placeholder="Wpisz nazwę klubu...">
                     </div>
 
                     <!-- Reset filtrów -->
                     <div class="letsfight-filter-reset-wrapper">
-                        <?php
-                        echo do_shortcode('[jet-smart-filters-remove-filters provider="jet-engine" query_id="default" label="🔄 Wyczyść filtry"]');
-                        ?>
+                        <button class="letsfight-btn letsfight-btn--reset">
+                            <span class="letsfight-btn__icon">🔄</span>
+                            <span class="letsfight-btn__text">Wyczyść filtry</span>
+                        </button>
                     </div>
 
                 </div>

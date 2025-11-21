@@ -1,7 +1,7 @@
 /**
  * Let's Fight - Mapa Klubów
  * JavaScript dla wyszukiwarki z integracją Mapbox i JetEngine
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 (function($) {
@@ -60,6 +60,9 @@
 
         // Filtr miasta
         initCityFilter();
+
+        // Własne filtry (bez JetSmartFilters)
+        initCustomFilters();
 
         // Nasłuchuj na AJAX JetEngine
         initJetEngineListener();
@@ -137,6 +140,89 @@
     }
 
     /**
+     * Inicjalizacja własnych filtrów (bez JetSmartFilters)
+     */
+    function initCustomFilters() {
+        debugLog('Inicjalizacja własnych filtrów');
+
+        // Filtr dyscypliny
+        $('.letsfight-dyscyplina-select').on('change', function() {
+            debugLog('Zmiana dyscypliny:', $(this).val());
+            filterClubs();
+        });
+
+        // Wyszukiwanie
+        let searchTimeout;
+        $('.letsfight-search-input').on('input', function() {
+            clearTimeout(searchTimeout);
+            const query = $(this).val();
+            searchTimeout = setTimeout(function() {
+                debugLog('Wyszukiwanie:', query);
+                filterClubs();
+            }, 300);
+        });
+
+        // Przycisk reset
+        $('.letsfight-btn--reset').on('click', function() {
+            debugLog('Reset filtrów');
+            $('.letsfight-dyscyplina-select').val('');
+            $('.letsfight-search-input').val('');
+            filterClubs();
+        });
+    }
+
+    /**
+     * Filtrowanie klubów (bez AJAX)
+     */
+    function filterClubs() {
+        const dyscyplina = $('.letsfight-dyscyplina-select').val().toLowerCase();
+        const searchQuery = $('.letsfight-search-input').val().toLowerCase();
+
+        debugLog('Filtrowanie klubów', {dyscyplina, searchQuery});
+
+        let visibleCount = 0;
+
+        $('.jet-listing-grid__item').each(function() {
+            const $item = $(this);
+            let visible = true;
+
+            // Filtr dyscypliny (sprawdź data-attribute lub termy w treści)
+            if (dyscyplina) {
+                const itemDyscypliny = $item.find('.dyscypliny, [class*="dyscyplin"]').text().toLowerCase();
+                if (itemDyscypliny.indexOf(dyscyplina) === -1) {
+                    visible = false;
+                }
+            }
+
+            // Filtr wyszukiwania (tytuł + treść)
+            if (searchQuery) {
+                const itemText = $item.text().toLowerCase();
+                if (itemText.indexOf(searchQuery) === -1) {
+                    visible = false;
+                }
+            }
+
+            // Pokaż/ukryj
+            if (visible) {
+                $item.fadeIn(200);
+                visibleCount++;
+            } else {
+                $item.fadeOut(200);
+            }
+        });
+
+        // Aktualizuj licznik
+        $('.letsfight-counter__number').text(visibleCount);
+
+        // Aktualizuj mapę jeśli aktywna
+        if (isMapInitialized && map) {
+            setTimeout(updateMapMarkers, 300);
+        }
+
+        debugLog('Widocznych klubów:', visibleCount);
+    }
+
+    /**
      * Inicjalizacja nasłuchiwania na AJAX JetEngine
      */
     function initJetEngineListener() {
@@ -164,7 +250,20 @@
      * Inicjalizacja mapy Mapbox
      */
     function initMap() {
-        debugLog('Rozpoczęcie inicjalizacji mapy Mapbox');
+        debugLog('========== INICJALIZACJA MAPY ==========');
+
+        // Sprawdź container
+        const container = document.getElementById('letsfight-map');
+        if (!container) {
+            console.error('[LetsFight Mapa] BŁĄD: Nie znaleziono kontenera #letsfight-map!');
+            return;
+        }
+
+        debugLog('Container znaleziony:', {
+            width: container.offsetWidth,
+            height: container.offsetHeight,
+            visible: container.offsetParent !== null
+        });
 
         // Sprawdź czy mapa już istnieje
         if (isMapInitialized && map) {
@@ -175,10 +274,13 @@
         try {
             // Ustaw token
             mapboxgl.accessToken = letsfightMap.mapboxToken;
+            debugLog('Token Mapbox ustawiony');
 
             // Współrzędne centrum dla Polski (Warszawa)
             const centerLat = 52.2297;
             const centerLng = 21.0122;
+
+            debugLog('Tworzenie mapy...', {center: [centerLng, centerLat], zoom: 6});
 
             // Stwórz mapę
             map = new mapboxgl.Map({
@@ -190,24 +292,29 @@
                 bearing: 0
             });
 
+            debugLog('Mapa stworzona, dodawanie kontrolek...');
+
             // Dodaj kontrolki
             map.addControl(new mapboxgl.NavigationControl(), 'top-right');
             map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
 
+            debugLog('Kontrolki dodane, czekam na załadowanie mapy...');
+
             // Event po załadowaniu mapy
             map.on('load', function() {
-                debugLog('Mapa Mapbox załadowana');
+                console.log('[LetsFight Mapa] ✅ Mapa Mapbox załadowana poprawnie!');
                 isMapInitialized = true;
                 updateMapMarkers();
             });
 
             // Obsługa błędów
             map.on('error', function(e) {
-                console.error('[LetsFight Mapa] Błąd mapy:', e);
+                console.error('[LetsFight Mapa] ❌ Błąd mapy:', e);
             });
 
         } catch (error) {
-            console.error('[LetsFight Mapa] Nie można zainicjalizować mapy:', error);
+            console.error('[LetsFight Mapa] ❌ Nie można zainicjalizować mapy:', error);
+            console.error('Stack trace:', error.stack);
             showMapError('Nie można załadować mapy. Spróbuj odświeżyć stronę.');
         }
     }
@@ -375,13 +482,14 @@
     function getVisiblePostIds() {
         const postIds = [];
 
-        $('.jet-listing-grid__item').each(function() {
+        $('.jet-listing-grid__item:visible').each(function() {
             const postId = $(this).data('post-id');
             if (postId) {
                 postIds.push(postId);
             }
         });
 
+        debugLog('getVisiblePostIds:', postIds);
         return postIds;
     }
 

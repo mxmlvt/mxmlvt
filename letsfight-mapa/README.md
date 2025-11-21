@@ -1,8 +1,8 @@
 # Let's Fight - Mapa Klubów 🥊
 
-Profesjonalna wtyczka WordPress do wyświetlania klubów sportów walki z integracją **JetEngine** i **JetSmartFilters** oraz interaktywną mapą **Mapbox GL JS**.
+Profesjonalna wtyczka WordPress do wyświetlania klubów sportów walki z integracją **JetEngine** oraz interaktywną mapą **Mapbox GL JS**. **Własne filtry** (bez JetSmartFilters)!
 
-![Version](https://img.shields.io/badge/version-1.1.2-orange)
+![Version](https://img.shields.io/badge/version-1.2.0-orange)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple)
 
@@ -12,20 +12,23 @@ Profesjonalna wtyczka WordPress do wyświetlania klubów sportów walki z integr
 
 ### 🎯 Główne możliwości
 
-- ✅ **Panel wyszukiwania** z filtrami (miasto + dyscyplina)
+- ✅ **Panel wyszukiwania** z filtrami (miasto + dyscyplina + wyszukiwarka)
+- ✅ **Własne filtry** - bez zależności od JetSmartFilters!
+- ✅ **Filtrowanie w czasie rzeczywistym** (client-side)
 - ✅ **Automatyczne wykrywanie miasta** z URL
 - ✅ **Toggle Lista/Mapa** z płynnym przełączaniem
 - ✅ **Live counter** liczby klubów
 - ✅ **Interaktywna mapa Mapbox** z markerami
 - ✅ **Automatyczne geokodowanie** adresów
 - ✅ **Kliknięcie markera** → scroll + highlight karty
-- ✅ **Synchronizacja z JetEngine AJAX**
+- ✅ **Synchronizacja z JetEngine**
 - ✅ **Responsywny design** mobile-first
 - ✅ **Kolory brandowe** #f79716 wszędzie
 - ✅ **Dark mode styling**
 - ✅ **Custom SVG markery** w kolorze Let's Fight
 - ✅ **Popupy z informacjami** o klubach
 - ✅ **Cache geokodowania** (30 dni)
+- ✅ **Zaawansowany debug mode** z logami
 - ✅ **Obsługa błędów** i walidacja
 
 ---
@@ -35,11 +38,11 @@ Profesjonalna wtyczka WordPress do wyświetlania klubów sportów walki z integr
 ### Obowiązkowe:
 - WordPress **5.0+**
 - PHP **7.4+**
-- **JetEngine** (Crocoblock)
-- **JetSmartFilters** (Crocoblock)
+- **JetEngine** (Crocoblock) - do wyświetlania listingu klubów
 
 ### Opcjonalne:
-- **Mapbox API token** (darmowy plan)
+- **Mapbox API token** (darmowy plan) - do wyświetlania mapy
+- ~~**JetSmartFilters**~~ - **NIE WYMAGANY!** Mamy własne filtry 🎉
 
 ---
 
@@ -432,6 +435,22 @@ Wtyczka automatycznie włączy verbose logging w konsoli i wyświetli panel debu
 ---
 
 ## 📜 Changelog
+
+### v1.2.0 (2025-11-21) - MAJOR UPDATE! 🎉
+- ✨ **WŁASNE FILTRY** - usunięto zależność od JetSmartFilters!
+- ✨ **Filtrowanie client-side** - dyscyplina + wyszukiwarka
+- ✨ **Poprawiono nazwę taksonomii** - 'miasto' zamiast 'miasta'
+- ✨ **Dodano pobieranie dyscyplin** z taxonomii 'dyscypliny'
+- ✨ **Własny select dla dyscypliny** - HTML bez shortcodów
+- ✨ **Własne pole wyszukiwania** - input text zamiast JetSmartFilters
+- ✨ **Przycisk reset filtrów** - czyści wszystkie filtry
+- ✨ **Live filtrowanie** - pokazuje/ukrywa kluby bez przeładowania
+- ✨ **Synchronizacja z mapą** - markery aktualizują się po filtrowaniu
+- ✨ **Zaawansowany debug dla mapy** - szczegółowe logi inicjalizacji
+- ✨ **Usunięto wymaganie JetSmartFilters** - tylko JetEngine jest potrzebny
+- 🐛 **Naprawiono widoczność postów** - `:visible` w getVisiblePostIds()
+- 🐛 **Poprawiono sprawdzanie pluginów** - JetSmartFilters opcjonalny
+- 📝 **Zaktualizowano dokumentację** - nowe wymagania i funkcje
 
 ### v1.1.2 (2025-11-21)
 - ✨ **Skanowanie dostępnych taksonomii dla CPT 'kluby'** - pokazuje wszystkie zarejestrowane taksonomie
