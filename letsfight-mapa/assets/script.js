@@ -332,8 +332,13 @@
                 // METODA 3: Sprawdź tekst w elementach z klasą "dyscypliny" lub podobną
                 if (!hasDyscyplina) {
                     const $dyscyplinyElements = $item.find('.dyscypliny, [class*="dyscyplin"], .jet-listing-dynamic-terms__link, .jet-listing-dynamic-field__content');
-                    $dyscyplinyElements.each(function() {
+
+                    debugLog('  🔍 METODA 3 - znaleziono elementów:', $dyscyplinyElements.length);
+
+                    $dyscyplinyElements.each(function(index) {
                         const termText = $(this).text().toLowerCase().trim();
+
+                        debugLog('    Element', index + ':', termText.substring(0, 50) + (termText.length > 50 ? '...' : ''));
 
                         // Sprawdź czy to lista dyscyplin rozdzielona przecinkami
                         if (termText.indexOf(',') !== -1) {
@@ -341,17 +346,23 @@
                             const disciplines = termText.split(',').map(d => d.trim());
                             const disciplineSlugs = disciplines.map(d => d.replace(/\s+/g, '-'));
 
+                            debugLog('      → Zawiera przecinki! Disciplines:', disciplines);
+                            debugLog('      → Slugs:', disciplineSlugs);
+                            debugLog('      → Szukamy:', dyscyplina);
+
                             if (disciplines.indexOf(dyscyplina) !== -1 || disciplineSlugs.indexOf(dyscyplina) !== -1) {
                                 hasDyscyplina = true;
-                                debugLog('  → Znaleziono przez tekst (comma-separated):', dyscyplina, 'w', termText);
+                                debugLog('  ✅ Znaleziono przez tekst (comma-separated):', dyscyplina, 'w', termText);
                                 return false; // break
+                            } else {
+                                debugLog('      ❌ Nie znaleziono w tym elemencie');
                             }
                         } else {
                             // Single discipline - exact match
                             const termSlug = termText.replace(/\s+/g, '-');
                             if (termText === dyscyplina || termSlug === dyscyplina) {
                                 hasDyscyplina = true;
-                                debugLog('  → Znaleziono przez tekst:', termText);
+                                debugLog('  ✅ Znaleziono przez tekst:', termText);
                                 return false; // break
                             }
                         }
