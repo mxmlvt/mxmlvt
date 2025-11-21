@@ -1,7 +1,7 @@
 /**
  * Let's Fight - Mapa Klubów
  * JavaScript dla wyszukiwarki z integracją Mapbox i JetEngine
- * @version 1.2.1
+ * @version 1.3.0
  */
 
 (function($) {
@@ -19,6 +19,76 @@
     function debugLog(message, data) {
         if (DEBUG) {
             console.log('[LetsFight Mapa]', message, data || '');
+        }
+    }
+
+    /**
+     * Klonowanie istniejącego listingu z Elementor widget
+     * FIX: JetEngine nie pozwala renderować tego samego listingu dwa razy na stronie,
+     * więc sklonujemy istniejący listing z widgetu Elementor zamiast wywołać shortcode ponownie
+     */
+    function cloneExistingListing() {
+        console.log('[LetsFight Mapa] ========== KLONOWANIE LISTINGU ==========');
+
+        const $targetContainer = $('.letsfight-view--lista');
+        const listingId = $targetContainer.data('listing-id');
+
+        if (!listingId) {
+            console.error('[LetsFight Mapa] ❌ Brak data-listing-id w kontenerze .letsfight-view--lista');
+            return;
+        }
+
+        console.log('[LetsFight Mapa] Szukam istniejącego listingu o ID:', listingId);
+
+        // Szukaj istniejącego listingu JetEngine na stronie
+        // Format klasy: .jet-listing-grid--{ID} lub .elementor-widget-jet-listing-grid
+        const $existingListing = $(`.jet-listing-grid--${listingId}`).first();
+
+        if ($existingListing.length === 0) {
+            console.error('[LetsFight Mapa] ❌ Nie znaleziono istniejącego listingu .jet-listing-grid--' + listingId + ' na stronie!');
+            console.log('[LetsFight Mapa] Sprawdzam czy listing jest gdziekolwiek na stronie...');
+
+            // Sprawdź wszystkie listingi na stronie
+            const allListings = $('[class*="jet-listing-grid--"]');
+            console.log('[LetsFight Mapa] Znaleziono listingi:', allListings.length);
+            allListings.each(function(index) {
+                console.log('[LetsFight Mapa]   - Listing', index + ':', this.className);
+            });
+
+            $targetContainer.find('.letsfight-listing-placeholder').html(
+                '<div style="padding: 20px; background: #fff3cd; color: #856404; border-radius: 8px;">' +
+                '<strong>⚠️ Nie można załadować klubów</strong><br>' +
+                'Listing JetEngine o ID <code>' + listingId + '</code> nie został znaleziony na stronie.' +
+                '</div>'
+            );
+            return;
+        }
+
+        console.log('[LetsFight Mapa] ✅ Znaleziono istniejący listing:', {
+            html_length: $existingListing.html().length,
+            items_count: $existingListing.find('.jet-listing-grid__item').length
+        });
+
+        // Sklonuj cały grid container wraz z itemami
+        const $clonedListing = $existingListing.clone(true, true);
+
+        // Usuń placeholder i wstaw sklonowany listing
+        $targetContainer.find('.letsfight-listing-placeholder').remove();
+        $targetContainer.append($clonedListing);
+
+        const itemsCount = $clonedListing.find('.jet-listing-grid__item').length;
+        console.log('[LetsFight Mapa] ✅ Listing sklonowany pomyślnie! Liczba itemów:', itemsCount);
+
+        // Aktualizuj licznik klubów
+        $('.letsfight-counter__number').text(itemsCount);
+
+        // Log dla debugowania - jakie elementy mamy w itemach (żeby filtry wiedziały co szukać)
+        if (DEBUG && itemsCount > 0) {
+            const $firstItem = $clonedListing.find('.jet-listing-grid__item').first();
+            console.log('[LetsFight Mapa] Struktura pierwszego itemu (dla debugowania filtrów):', {
+                classes: $firstItem.attr('class'),
+                html_sample: $firstItem.html().substring(0, 200) + '...'
+            });
         }
     }
 
@@ -63,6 +133,10 @@
         }
 
         debugLog('Inicjalizacja wtyczki');
+
+        // KRYTYCZNE: Sklonuj istniejący listing z Elementor widget zanim zainicjalizujemy resztę
+        cloneExistingListing();
+
         initWyszukiwarka();
         console.log('[LetsFight Mapa] ========== INIT COMPLETE ==========');
     });
@@ -301,9 +375,21 @@
         }
 
         try {
+            // Walidacja tokenu Mapbox
+            const token = letsfightMap.mapboxToken;
+            if (!token || !token.startsWith('pk.')) {
+                console.error('[LetsFight Mapa] ❌ BŁĄD: Nieprawidłowy token Mapbox!', {
+                    token_exists: !!token,
+                    token_preview: token ? token.substring(0, 10) + '...' : 'BRAK',
+                    expected_format: 'pk.ey...'
+                });
+                showMapError('Błąd konfiguracji: Nieprawidłowy token Mapbox. Skontaktuj się z administratorem.');
+                return;
+            }
+
             // Ustaw token
-            mapboxgl.accessToken = letsfightMap.mapboxToken;
-            debugLog('Token Mapbox ustawiony');
+            mapboxgl.accessToken = token;
+            console.log('[LetsFight Mapa] ✅ Token Mapbox ustawiony:', token.substring(0, 20) + '...');
 
             // Współrzędne centrum dla Polski (Warszawa)
             const centerLat = 52.2297;
@@ -318,7 +404,8 @@
                 center: [centerLng, centerLat],
                 zoom: 6,
                 pitch: 0,
-                bearing: 0
+                bearing: 0,
+                attributionControl: true
             });
 
             debugLog('Mapa stworzona, dodawanie kontrolek...');
@@ -336,15 +423,44 @@
                 updateMapMarkers();
             });
 
-            // Obsługa błędów
+            // Rozszerzona obsługa błędów
             map.on('error', function(e) {
-                console.error('[LetsFight Mapa] ❌ Błąd mapy:', e);
+                console.error('[LetsFight Mapa] ❌ Błąd mapy - szczegóły:', {
+                    error: e.error,
+                    error_message: e.error ? e.error.message : 'brak',
+                    error_status: e.error ? e.error.status : 'brak',
+                    sourceId: e.sourceId,
+                    full_event: e
+                });
+
+                // Mapbox error codes
+                if (e.error) {
+                    const errorMsg = e.error.message || '';
+                    const errorStatus = e.error.status;
+
+                    if (errorStatus === 401) {
+                        showMapError('Błąd autoryzacji Mapbox (401): Token może być nieprawidłowy lub wygasły. Sprawdź token w ustawieniach.');
+                    } else if (errorStatus === 403) {
+                        showMapError('Błąd dostępu Mapbox (403): Token nie ma wymaganych uprawnień.');
+                    } else if (errorMsg.includes('token')) {
+                        showMapError('Błąd tokenu Mapbox: ' + errorMsg);
+                    } else {
+                        showMapError('Błąd mapy: ' + errorMsg);
+                    }
+                }
+            });
+
+            // Dodatkowy listener dla stylów
+            map.on('style.load', function() {
+                console.log('[LetsFight Mapa] ✅ Styl mapy załadowany');
             });
 
         } catch (error) {
             console.error('[LetsFight Mapa] ❌ Nie można zainicjalizować mapy:', error);
-            console.error('Stack trace:', error.stack);
-            showMapError('Nie można załadować mapy. Spróbuj odświeżyć stronę.');
+            console.error('[LetsFight Mapa] Error name:', error.name);
+            console.error('[LetsFight Mapa] Error message:', error.message);
+            console.error('[LetsFight Mapa] Stack trace:', error.stack);
+            showMapError('Nie można załadować mapy: ' + error.message);
         }
     }
 

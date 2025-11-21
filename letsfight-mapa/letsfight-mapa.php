@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Let's Fight - Mapa Klubów
  * Description: Integracja mapy Mapbox z JetEngine dla klubów sportowych
- * Version: 1.2.1
+ * Version: 1.3.0
  * Author: MaxDigital.pl
  * Text Domain: letsfight-mapa
  * Requires at least: 5.0
@@ -26,7 +26,7 @@ class LetsFight_Mapa {
      * Wersja wtyczki
      * @var string
      */
-    private $version = '1.2.1';
+    private $version = '1.3.0';
 
     /**
      * Debug mode
@@ -358,32 +358,21 @@ class LetsFight_Mapa {
             </div>
 
             <!-- Widok listy (JetEngine Grid) -->
-            <div class="letsfight-view letsfight-view--lista letsfight-view--active">
+            <div class="letsfight-view letsfight-view--lista letsfight-view--active" data-listing-id="<?php echo esc_attr($atts['listing_id']); ?>">
                 <?php
-                // Dodaj debug przed renderowaniem
-                $listing_shortcode = '[jet_engine component="listings_grid" listing_id="' . esc_attr($atts['listing_id']) . '"]';
-                $this->debug_log('Renderowanie listingu JetEngine', [
-                    'shortcode' => $listing_shortcode,
-                    'listing_id' => $atts['listing_id'],
-                ]);
-
-                // Renderuj listing
-                $listing_output = do_shortcode($listing_shortcode);
-
-                if (empty(trim(strip_tags($listing_output)))) {
-                    $this->debug_log('BŁĄD: Listing JetEngine zwrócił pusty output!');
-                    echo '<div style="padding: 20px; background: #fff3cd; color: #856404; border-radius: 8px; margin: 20px 0;">';
-                    echo '<strong>⚠️ Brak klubów do wyświetlenia.</strong><br>';
-                    echo 'Shortcode: <code>' . esc_html($listing_shortcode) . '</code>';
-                    echo '</div>';
-                } else {
-                    $this->debug_log('Listing JetEngine renderowany pomyślnie', [
-                        'output_length' => strlen($listing_output),
-                    ]);
-                }
-
-                echo $listing_output;
+                // NOWA STRATEGIA: Zamiast renderować shortcode (który zwraca pusty output jeśli listing już istnieje na stronie),
+                // JavaScript sklonuje istniejący listing z Elementor widget na stronie
+                $this->debug_log('Przygotowanie placeholder dla listingu - JavaScript sklonuje istniejący listing z ID: ' . $atts['listing_id']);
                 ?>
+                <div class="letsfight-listing-placeholder">
+                    <div style="padding: 40px; text-align: center; color: #666;">
+                        <svg style="width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.5;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10" stroke-width="2" opacity="0.3"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        <p style="margin: 0; font-size: 14px;">Ładowanie klubów...</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Widok mapy (Mapbox) -->
