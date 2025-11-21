@@ -361,6 +361,55 @@
     }
 }
 
+/* ==================== MARKER LABELS (MAPA) ==================== */
+.letsfight-marker-container {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.letsfight-marker-pin {
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.letsfight-marker-label {
+    background: #1a1a1a;
+    border: 2px solid #f79716;
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 180px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    transform: translateY(-20px); /* Przesuń etykietę wyżej obok pina */
+}
+
+.letsfight-marker-label__name {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+.letsfight-marker-label__btn {
+    display: inline-block;
+    background: #f79716;
+    color: #1a1a1a;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.letsfight-marker-label__btn:hover {
+    background: #ff9d2e;
+    color: #000;
+    transform: translateX(2px);
+}
+
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 1024px) {
     .letsfight-panel {

@@ -628,25 +628,16 @@
 
         clubs.forEach(function(club) {
             try {
-                // Stwórz własny marker (SVG pin)
-                const el = createMarkerElement();
+                // Stwórz własny marker z etykietą (pin + nazwa + przycisk)
+                const el = createMarkerElementWithLabel(club);
 
-                // Popup z informacjami (pokazuje się na kliknięcie)
-                const popup = createMarkerPopup(club);
-
-                // Dodaj marker do mapy
-                const marker = new mapboxgl.Marker(el)
+                // Dodaj marker do mapy (bez popup - etykieta jest na stałe widoczna)
+                const marker = new mapboxgl.Marker({
+                    element: el,
+                    anchor: 'bottom' // Pin wskazuje na lokalizację
+                })
                     .setLngLat([club.lng, club.lat])
-                    .setPopup(popup)
                     .addTo(map);
-
-                // Tooltip z nazwą klubu (pokazuje się na hover)
-                el.setAttribute('title', club.title);
-
-                // Kliknięcie markera → scroll do karty
-                el.addEventListener('click', function() {
-                    scrollToClub(club.id);
-                });
 
                 markers.push(marker);
                 bounds.extend([club.lng, club.lat]);
@@ -675,18 +666,36 @@
     }
 
     /**
-     * Stwórz element markera
+     * Stwórz element markera z etykietą (pin + nazwa + przycisk)
      */
-    function createMarkerElement() {
-        const el = document.createElement('div');
-        el.className = 'letsfight-marker';
-        el.style.backgroundImage = 'url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCAzMCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTUgMEMxMC44NiAwIDcuNSAzLjM2IDcuNSA3LjVjMCAxLjkzIDEuMjkgMy42IDMuMDcgNC4xNEwxNSAzNS43MWw0LjQzLTI0LjA3QzIxLjIxIDExLjEgMjIuNSA5LjQzIDIyLjUgNy41IDIyLjUgMy4zNiAxOS4xNCAwIDE1IDB6bTAgMTBjLTEuMzggMC0yLjUtMS4xMi0yLjUtMi41UzEzLjYyIDUgMTUgNXMyLjUgMS4xMiAyLjUgMi41UzE2LjM4IDEwIDE1IDEweiIgZmlsbD0iI2Y3OTcxNiIvPjwvc3ZnPg==)';
-        el.style.width = '30px';
-        el.style.height = '40px';
-        el.style.cursor = 'pointer';
-        el.style.backgroundSize = 'contain';
-        el.style.backgroundRepeat = 'no-repeat';
-        return el;
+    function createMarkerElementWithLabel(club) {
+        // Kontener dla całego markera
+        const container = document.createElement('div');
+        container.className = 'letsfight-marker-container';
+
+        // Pin (pinezka)
+        const pin = document.createElement('div');
+        pin.className = 'letsfight-marker-pin';
+        pin.style.backgroundImage = 'url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCAzMCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTUgMEMxMC44NiAwIDcuNSAzLjM2IDcuNSA3LjVjMCAxLjkzIDEuMjkgMy42IDMuMDcgNC4xNEwxNSAzNS43MWw0LjQzLTI0LjA3QzIxLjIxIDExLjEgMjIuNSA5LjQzIDIyLjUgNy41IDIyLjUgMy4zNiAxOS4xNCAwIDE1IDB6bTAgMTBjLTEuMzggMC0yLjUtMS4xMi0yLjUtMi41UzEzLjYyIDUgMTUgNXMyLjUgMS4xMiAyLjUgMi41UzE2LjM4IDEwIDE1IDEweiIgZmlsbD0iI2Y3OTcxNiIvPjwvc3ZnPg==)';
+        pin.style.width = '30px';
+        pin.style.height = '40px';
+        pin.style.backgroundSize = 'contain';
+        pin.style.backgroundRepeat = 'no-repeat';
+
+        // Etykieta (nazwa + przycisk)
+        const label = document.createElement('div');
+        label.className = 'letsfight-marker-label';
+        label.innerHTML = `
+            <div class="letsfight-marker-label__name">${escapeHtml(club.title)}</div>
+            <a href="${club.url}" class="letsfight-marker-label__btn" onclick="event.stopPropagation();">
+                Przejdź do klubu →
+            </a>
+        `;
+
+        container.appendChild(pin);
+        container.appendChild(label);
+
+        return container;
     }
 
     /**
