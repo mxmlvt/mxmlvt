@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Let's Fight - Mapa Klubów
  * Description: Integracja mapy Mapbox z JetEngine dla klubów sportowych
- * Version: 1.3.0
+ * Version: 1.3.1
  * Author: MaxDigital.pl
  * Text Domain: letsfight-mapa
  * Requires at least: 5.0
@@ -20,13 +20,13 @@ class LetsFight_Mapa {
      * Token API Mapbox
      * @var string
      */
-    private $mapbox_token = 'pk.eyJ1IjoibWF4ZGlnaXRhbCIsImEiOiJjbTN4eWc4dXowMDJqMmpzYnZ6dXNsYnNyIn0.vKhEBdS_KwATxsA5fTqmqg';
+    private $mapbox_token = 'pk.eyJ1IjoianVsaWFrYXJhc3pld3NrYTI1OCIsImEiOiJjbWk4bzNpbGgwN2IyMmtzYWJrZWUzNzJmIn0.4GUyr_qVlSzImm_aJSJ4OA';
 
     /**
      * Wersja wtyczki
      * @var string
      */
-    private $version = '1.3.0';
+    private $version = '1.3.1';
 
     /**
      * Debug mode

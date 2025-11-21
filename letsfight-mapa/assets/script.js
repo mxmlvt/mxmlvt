@@ -1,7 +1,7 @@
 /**
  * Let's Fight - Mapa Klubów
  * JavaScript dla wyszukiwarki z integracją Mapbox i JetEngine
- * @version 1.3.0
+ * @version 1.3.1
  */
 
 (function($) {
@@ -23,12 +23,11 @@
     }
 
     /**
-     * Klonowanie istniejącego listingu z Elementor widget
-     * FIX: JetEngine nie pozwala renderować tego samego listingu dwa razy na stronie,
-     * więc sklonujemy istniejący listing z widgetu Elementor zamiast wywołać shortcode ponownie
+     * Przeniesienie istniejącego listingu z Elementor widget do naszego kontenera
+     * FIX: Zamiast klonować (co powoduje duplikaty), przenosimy istniejący listing
      */
-    function cloneExistingListing() {
-        console.log('[LetsFight Mapa] ========== KLONOWANIE LISTINGU ==========');
+    function moveExistingListing() {
+        console.log('[LetsFight Mapa] ========== PRZENOSZENIE LISTINGU ==========');
 
         const $targetContainer = $('.letsfight-view--lista');
         const listingId = $targetContainer.data('listing-id');
@@ -41,7 +40,7 @@
         console.log('[LetsFight Mapa] Szukam istniejącego listingu o ID:', listingId);
 
         // Szukaj istniejącego listingu JetEngine na stronie
-        // Format klasy: .jet-listing-grid--{ID} lub .elementor-widget-jet-listing-grid
+        // Format klasy: .jet-listing-grid--{ID}
         const $existingListing = $(`.jet-listing-grid--${listingId}`).first();
 
         if ($existingListing.length === 0) {
@@ -58,7 +57,8 @@
             $targetContainer.find('.letsfight-listing-placeholder').html(
                 '<div style="padding: 20px; background: #fff3cd; color: #856404; border-radius: 8px;">' +
                 '<strong>⚠️ Nie można załadować klubów</strong><br>' +
-                'Listing JetEngine o ID <code>' + listingId + '</code> nie został znaleziony na stronie.' +
+                'Listing JetEngine o ID <code>' + listingId + '</code> nie został znaleziony na stronie.<br>' +
+                '<small>Upewnij się, że listing jest dodany na stronie przez widget Elementor.</small>' +
                 '</div>'
             );
             return;
@@ -69,22 +69,20 @@
             items_count: $existingListing.find('.jet-listing-grid__item').length
         });
 
-        // Sklonuj cały grid container wraz z itemami
-        const $clonedListing = $existingListing.clone(true, true);
-
-        // Usuń placeholder i wstaw sklonowany listing
+        // KLUCZOWE: PRZENIEŚ (nie klonuj!) listing do naszego kontenera
+        // To rozwiązuje problem duplikacji - listing będzie tylko raz na stronie
         $targetContainer.find('.letsfight-listing-placeholder').remove();
-        $targetContainer.append($clonedListing);
+        $existingListing.detach().appendTo($targetContainer);
 
-        const itemsCount = $clonedListing.find('.jet-listing-grid__item').length;
-        console.log('[LetsFight Mapa] ✅ Listing sklonowany pomyślnie! Liczba itemów:', itemsCount);
+        const itemsCount = $existingListing.find('.jet-listing-grid__item').length;
+        console.log('[LetsFight Mapa] ✅ Listing przeniesiony pomyślnie! Liczba itemów:', itemsCount);
 
         // Aktualizuj licznik klubów
         $('.letsfight-counter__number').text(itemsCount);
 
         // Log dla debugowania - jakie elementy mamy w itemach (żeby filtry wiedziały co szukać)
         if (DEBUG && itemsCount > 0) {
-            const $firstItem = $clonedListing.find('.jet-listing-grid__item').first();
+            const $firstItem = $existingListing.find('.jet-listing-grid__item').first();
             console.log('[LetsFight Mapa] Struktura pierwszego itemu (dla debugowania filtrów):', {
                 classes: $firstItem.attr('class'),
                 html_sample: $firstItem.html().substring(0, 200) + '...'
@@ -134,8 +132,8 @@
 
         debugLog('Inicjalizacja wtyczki');
 
-        // KRYTYCZNE: Sklonuj istniejący listing z Elementor widget zanim zainicjalizujemy resztę
-        cloneExistingListing();
+        // KRYTYCZNE: Przenieś istniejący listing z Elementor widget do naszego kontenera
+        moveExistingListing();
 
         initWyszukiwarka();
         console.log('[LetsFight Mapa] ========== INIT COMPLETE ==========');
@@ -214,30 +212,22 @@
      */
     function initCityFilter() {
         const $select = $('.letsfight-miasto-select');
-        const $searchBtn = $('.letsfight-btn--search');
 
-        // Zmiana miasta - pokazuje przycisk "Szukaj"
+        // Zmiana miasta - OD RAZU przekierowuje bez przycisku
         $select.on('change', function() {
             const currentSlug = $(this).data('current-slug');
             const newSlug = $(this).val();
-
-            if (newSlug !== currentSlug) {
-                $searchBtn.fadeIn(200);
-            } else {
-                $searchBtn.fadeOut(200);
-            }
-        });
-
-        // Przycisk Szukaj - redirect do nowego miasta
-        $searchBtn.on('click', function() {
-            const newSlug = $select.val();
             const baseUrl = '/trenuj/';
 
-            if (newSlug) {
-                debugLog('Przekierowanie do miasta:', newSlug);
-                window.location.href = baseUrl + newSlug + '/';
-            } else {
-                window.location.href = baseUrl;
+            // Przekieruj tylko jeśli wybrano inne miasto niż aktualne
+            if (newSlug !== currentSlug) {
+                console.log('[LetsFight Mapa] Przekierowanie do miasta:', newSlug);
+
+                if (newSlug) {
+                    window.location.href = baseUrl + newSlug + '/';
+                } else {
+                    window.location.href = baseUrl;
+                }
             }
         });
     }
