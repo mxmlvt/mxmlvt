@@ -1,0 +1,29 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+*.log
+error_log
+
+# WordPress
+wp-config.php
+.htaccess
+
+# Node
+node_modules/
+package-lock.json
+
+# Build
+dist/
+build/
+
+# Temp
+*.tmp
+*.bak
+*~

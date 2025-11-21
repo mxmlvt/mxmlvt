@@ -1,0 +1,559 @@
+/**
+ * Let's Fight - Mapa Klubów
+ * Style dla wyszukiwarki z mapą
+ * Kolory: #f79716 (orange), #ff0080 (pink), #1a1a1a (dark)
+ * @version 1.1.0
+ */
+
+.letsfight-wyszukiwarka {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ==================== GÓRNY PANEL ==================== */
+.letsfight-panel {
+    background: #1a1a1a;
+    padding: 20px 30px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.letsfight-panel__filters {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.letsfight-panel__actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* ==================== FILTER ==================== */
+.letsfight-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.letsfight-filter__label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+}
+
+.letsfight-select,
+.letsfight-filter--dyscyplina .jet-select__control,
+.letsfight-filter--search .jet-search-filter__input {
+    background: #2a2a2a !important;
+    color: #fff !important;
+    border: 2px solid #f79716 !important;
+    border-radius: 6px !important;
+    padding: 10px 35px 10px 15px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23f79716' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    min-width: 180px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+}
+
+.letsfight-filter--search .jet-search-filter__input {
+    background-image: none !important;
+    padding: 10px 15px !important;
+}
+
+.letsfight-select:hover,
+.letsfight-filter--dyscyplina .jet-select__control:hover,
+.letsfight-filter--search .jet-search-filter__input:hover {
+    border-color: #ff9d2e !important;
+}
+
+.letsfight-select:focus,
+.letsfight-filter--dyscyplina .jet-select__control:focus,
+.letsfight-filter--search .jet-search-filter__input:focus {
+    outline: none !important;
+    border-color: #f79716 !important;
+    box-shadow: 0 0 0 3px rgba(247, 151, 22, 0.1) !important;
+}
+
+/* Stylizacja przycisku Reset z JetSmartFilters */
+.letsfight-filter-reset-wrapper .jet-remove-all-filters__button,
+.jet-remove-all-filters__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent !important;
+    color: #f79716 !important;
+    border: 1px solid #f79716 !important;
+    border-radius: 6px !important;
+    padding: 10px 18px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s;
+}
+
+.letsfight-filter-reset-wrapper .jet-remove-all-filters__button:hover,
+.jet-remove-all-filters__button:hover {
+    background: #f79716 !important;
+    color: #1a1a1a !important;
+    transform: translateY(-1px);
+}
+
+.letsfight-select:focus,
+.letsfight-filter--dyscyplina .jet-select__control:focus {
+    outline: none !important;
+    border-color: #f79716 !important;
+    box-shadow: 0 0 0 3px rgba(247, 151, 22, 0.1) !important;
+}
+
+/* ==================== PRZYCISKI ==================== */
+.letsfight-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: #f79716;
+    border: 1px solid #f79716;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.letsfight-btn:hover {
+    background: #f79716;
+    color: #1a1a1a;
+    transform: translateY(-1px);
+}
+
+.letsfight-btn--search {
+    background: #f79716;
+    color: #1a1a1a;
+    animation: fadeInScale 0.3s ease;
+}
+
+.letsfight-btn--search:hover {
+    background: #ff9d2e;
+    transform: scale(1.05);
+}
+
+.letsfight-btn__icon {
+    font-size: 16px;
+}
+
+/* ==================== TOGGLE LISTA/MAPA ==================== */
+.letsfight-toggle {
+    display: flex;
+    background: #2a2a2a;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #3a3a3a;
+}
+
+.letsfight-toggle__btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: transparent;
+    color: #999;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.letsfight-toggle__btn::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 20px;
+    background: #3a3a3a;
+}
+
+.letsfight-toggle__btn:last-child::after {
+    display: none;
+}
+
+.letsfight-toggle__btn:hover {
+    color: #fff;
+    background: rgba(247, 151, 22, 0.1);
+}
+
+.letsfight-toggle__btn--active {
+    background: #f79716;
+    color: #1a1a1a;
+}
+
+.letsfight-toggle__btn--active:hover {
+    background: #ff9d2e;
+}
+
+/* ==================== COUNTER ==================== */
+.letsfight-counter {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.letsfight-counter__text {
+    color: #999;
+}
+
+.letsfight-counter__number {
+    font-size: 24px;
+    font-weight: 700;
+    color: #f79716;
+}
+
+.letsfight-counter__label {
+    color: #999;
+}
+
+/* ==================== WIDOKI ==================== */
+.letsfight-view {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.letsfight-view--active {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+/* Upewnij się że JetEngine listing jest widoczny */
+.letsfight-view--lista .jet-listing-grid,
+.letsfight-view--lista .jet-listing-grid__items,
+.letsfight-view--lista .jet-listing-grid__item {
+    display: block !important;
+    visibility: visible !important;
+}
+
+.letsfight-view--lista .jet-listing-grid__items {
+    display: grid !important;
+}
+
+/* ==================== MAPA ==================== */
+#letsfight-map {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Marker styling */
+.letsfight-marker {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.letsfight-marker:hover {
+    transform: scale(1.2);
+}
+
+/* Popup styling */
+.mapboxgl-popup-content {
+    background: #1a1a1a !important;
+    color: #fff !important;
+    padding: 15px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+}
+
+.mapboxgl-popup-close-button {
+    color: #f79716 !important;
+    font-size: 20px !important;
+    padding: 5px !important;
+}
+
+.mapboxgl-popup-close-button:hover {
+    background: rgba(247, 151, 22, 0.1) !important;
+}
+
+.letsfight-popup h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    color: #f79716;
+    font-weight: 600;
+}
+
+.letsfight-popup a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-block;
+    margin-top: 8px;
+    padding: 6px 12px;
+    background: #f79716;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.letsfight-popup a:hover {
+    background: #ff9d2e;
+    transform: translateY(-1px);
+}
+
+/* ==================== HIGHLIGHT KARTY ==================== */
+.jet-listing-grid__item--highlighted {
+    animation: highlightPulse 1.5s ease;
+    position: relative;
+}
+
+@keyframes highlightPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 rgba(247, 151, 22, 0);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(247, 151, 22, 0.6);
+    }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+    .letsfight-panel {
+        padding: 15px 20px;
+    }
+    
+    .letsfight-select,
+    .letsfight-filter--dyscyplina .jet-select__control {
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 768px) {
+    .letsfight-panel {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .letsfight-panel__filters,
+    .letsfight-panel__actions {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+    
+    .letsfight-filter {
+        flex: 1;
+        min-width: 140px;
+    }
+    
+    .letsfight-select,
+    .letsfight-filter--dyscyplina .jet-select__control {
+        min-width: 0;
+        width: 100%;
+    }
+    
+    .letsfight-btn {
+        flex: 1;
+    }
+    
+    .letsfight-toggle {
+        width: 100%;
+    }
+    
+    .letsfight-toggle__btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .letsfight-counter {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    #letsfight-map {
+        height: 450px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .letsfight-panel {
+        padding: 15px;
+    }
+    
+    .letsfight-btn__text {
+        display: none;
+    }
+    
+    .letsfight-btn__icon {
+        font-size: 18px;
+    }
+    
+    .letsfight-toggle__text {
+        display: none;
+    }
+    
+    .letsfight-counter__number {
+        font-size: 20px;
+    }
+    
+    #letsfight-map {
+        height: 350px !important;
+    }
+}
+
+/* ==================== LOADING STATE ==================== */
+.letsfight-view--mapa.loading::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border: 4px solid #2a2a2a;
+    border-top-color: #f79716;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 10;
+}
+
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* ==================== ERROR MESSAGES ==================== */
+.letsfight-error {
+    padding: 20px;
+    background: #f8d7da;
+    color: #721c24;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    margin: 20px 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.letsfight-error strong {
+    font-weight: 700;
+}
+
+/* ==================== POPUP IMPROVEMENTS ==================== */
+.letsfight-popup {
+    min-width: 200px;
+}
+
+.letsfight-popup p {
+    margin: 8px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #ccc;
+}
+
+.letsfight-popup__link {
+    display: inline-block !important;
+    margin-top: 10px !important;
+}
+
+/* ==================== MAP LOADING OVERLAY ==================== */
+.letsfight-view--mapa {
+    position: relative;
+}
+
+.letsfight-view--mapa.loading {
+    pointer-events: none;
+}
+
+.letsfight-view--mapa.loading::after {
+    content: 'Ładowanie mapy...';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, calc(-50% + 40px));
+    color: #f79716;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 11;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* ==================== JETENGINE COMPATIBILITY ==================== */
+.letsfight-view--lista {
+    min-height: 200px;
+}
+
+/* Fix dla JetEngine grid */
+.jet-listing-grid {
+    margin: 0 !important;
+}
+
+/* ==================== SMOOTH TRANSITIONS ==================== */
+.letsfight-toggle__btn,
+.letsfight-btn,
+.letsfight-marker {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==================== ACCESSIBILITY ==================== */
+.letsfight-toggle__btn:focus,
+.letsfight-btn:focus,
+.letsfight-select:focus {
+    outline: 2px solid #f79716;
+    outline-offset: 2px;
+}
+
+/* ==================== PRINT STYLES ==================== */
+@media print {
+    .letsfight-panel {
+        background: #fff;
+        color: #000;
+    }
+
+    .letsfight-toggle,
+    .letsfight-btn--search,
+    .letsfight-filter-reset-wrapper {
+        display: none;
+    }
+
+    .letsfight-view--lista {
+        display: block !important;
+    }
+
+    .letsfight-view--mapa {
+        display: none !important;
+    }
+}
