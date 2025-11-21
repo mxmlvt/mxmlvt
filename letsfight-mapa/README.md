@@ -2,7 +2,7 @@
 
 Profesjonalna wtyczka WordPress do wyświetlania klubów sportów walki z integracją **JetEngine** oraz interaktywną mapą **Mapbox GL JS**. **Własne filtry** (bez JetSmartFilters)!
 
-![Version](https://img.shields.io/badge/version-1.3.1-orange)
+![Version](https://img.shields.io/badge/version-1.4.0-orange)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple)
 
@@ -435,6 +435,19 @@ Wtyczka automatycznie włączy verbose logging w konsoli i wyświetli panel debu
 ---
 
 ## 📜 Changelog
+
+### v1.4.0 (2025-11-21) - PEŁNA FUNKCJONALNOŚĆ! 🎉
+- 🔥 **FIX FILTROWANIA DYSCYPLIN** - ulepszone wyszukiwanie (4 metody)
+  - Metoda 1: Klasy CSS na item (term-{slug})
+  - Metoda 2: Klasy CSS w linkach/spanach
+  - Metoda 3: Tekst w elementach dyscypliny
+  - Metoda 4: Slug w href linków
+- 🗺️ **FIX MARKERÓW NA MAPIE** - naprawiono getVisiblePostIds()
+  - Wyciąga ID z klasy: .jet-listing-dynamic-post-{ID}
+  - Markery teraz się pokazują z geokodowaniem adresów
+- 🎨 **UX: Pozycja przycisku "Wyczyść filtry"** - wyrównanie z innymi filtrami
+- 📝 **Rozszerzone logi** - każde filtrowanie i pobieranie ID jest logowane
+- ✨ **Geokodowanie działa** - adresy z meta field 'adres_dla_mapy' są geokodowane przez Mapbox API
 
 ### v1.3.1 (2025-11-21) - HOTFIX! 🚀
 - 🔥 **FIX DUPLIKACJI LISTINGU** - zmiana z klonowania na PRZENOSZENIE listingu

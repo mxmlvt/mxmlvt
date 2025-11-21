@@ -1,7 +1,7 @@
 /**
  * Let's Fight - Mapa Klubów
  * JavaScript dla wyszukiwarki z integracją Mapbox i JetEngine
- * @version 1.3.1
+ * @version 1.4.0
  */
 
 (function($) {
@@ -271,7 +271,9 @@
         const dyscyplina = $('.letsfight-dyscyplina-select').val().toLowerCase();
         const searchQuery = $('.letsfight-search-input').val().toLowerCase();
 
-        debugLog('Filtrowanie klubów', {dyscyplina, searchQuery});
+        console.log('[LetsFight Mapa] ========== FILTROWANIE ==========');
+        console.log('[LetsFight Mapa] Dyscyplina:', dyscyplina || '(wszystkie)');
+        console.log('[LetsFight Mapa] Wyszukiwanie:', searchQuery || '(brak)');
 
         let visibleCount = 0;
 
@@ -279,16 +281,69 @@
             const $item = $(this);
             let visible = true;
 
-            // Filtr dyscypliny (sprawdź data-attribute lub termy w treści)
+            // Filtr dyscypliny - ULEPSZONE WYSZUKIWANIE
             if (dyscyplina) {
-                const itemDyscypliny = $item.find('.dyscypliny, [class*="dyscyplin"]').text().toLowerCase();
-                if (itemDyscypliny.indexOf(dyscyplina) === -1) {
+                let hasDyscyplina = false;
+
+                // METODA 1: Sprawdź klasy CSS (JetEngine często dodaje class="term-{slug}")
+                const itemClasses = $item.attr('class') || '';
+                if (itemClasses.indexOf('term-' + dyscyplina) !== -1) {
+                    hasDyscyplina = true;
+                    debugLog('  → Znaleziono przez klasę item: term-' + dyscyplina);
+                }
+
+                // METODA 2: Sprawdź klasy CSS w linkach/spanach z taxonomiami
+                if (!hasDyscyplina) {
+                    $item.find('a[class*="term-"], span[class*="term-"]').each(function() {
+                        const termClasses = $(this).attr('class') || '';
+                        if (termClasses.indexOf('term-' + dyscyplina) !== -1) {
+                            hasDyscyplina = true;
+                            debugLog('  → Znaleziono przez klasę link: term-' + dyscyplina);
+                            return false; // break
+                        }
+                    });
+                }
+
+                // METODA 3: Sprawdź tekst w elementach z klasą "dyscypliny" lub podobną
+                if (!hasDyscyplina) {
+                    const $dyscyplinyElements = $item.find('.dyscypliny, [class*="dyscyplin"], .jet-listing-dynamic-terms__link');
+                    $dyscyplinyElements.each(function() {
+                        const termText = $(this).text().toLowerCase().trim();
+                        const termSlug = termText.replace(/\s+/g, '-');
+
+                        if (termText === dyscyplina || termSlug === dyscyplina) {
+                            hasDyscyplina = true;
+                            debugLog('  → Znaleziono przez tekst:', termText);
+                            return false; // break
+                        }
+                    });
+                }
+
+                // METODA 4: Sprawdź slug w href linków
+                if (!hasDyscyplina) {
+                    $item.find('a[href*="/dyscypliny/"]').each(function() {
+                        const href = $(this).attr('href') || '';
+                        if (href.indexOf('/' + dyscyplina + '/') !== -1 || href.indexOf('/' + dyscyplina) !== -1) {
+                            hasDyscyplina = true;
+                            debugLog('  → Znaleziono przez href:', href);
+                            return false; // break
+                        }
+                    });
+                }
+
+                if (!hasDyscyplina) {
                     visible = false;
+                    if (DEBUG) {
+                        console.log('[LetsFight Mapa] ❌ Item nie ma dyscypliny:', dyscyplina, {
+                            post_id: $item.attr('class'),
+                            sprawdzone: 'klasy CSS, linki, tekst, href'
+                        });
+                    }
                 }
             }
 
             // Filtr wyszukiwania (tytuł + treść)
-            if (searchQuery) {
+            if (visible && searchQuery) {
                 const itemText = $item.text().toLowerCase();
                 if (itemText.indexOf(searchQuery) === -1) {
                     visible = false;
@@ -307,12 +362,12 @@
         // Aktualizuj licznik
         $('.letsfight-counter__number').text(visibleCount);
 
+        console.log('[LetsFight Mapa] ✅ Widocznych klubów:', visibleCount);
+
         // Aktualizuj mapę jeśli aktywna
         if (isMapInitialized && map) {
             setTimeout(updateMapMarkers, 300);
         }
-
-        debugLog('Widocznych klubów:', visibleCount);
     }
 
     /**
@@ -618,13 +673,18 @@
         const postIds = [];
 
         $('.jet-listing-grid__item:visible').each(function() {
-            const postId = $(this).data('post-id');
-            if (postId) {
+            // JetEngine dodaje klasę: jet-listing-dynamic-post-{ID}
+            const classes = $(this).attr('class') || '';
+            const match = classes.match(/jet-listing-dynamic-post-(\d+)/);
+
+            if (match && match[1]) {
+                const postId = parseInt(match[1], 10);
                 postIds.push(postId);
+                debugLog('  → Znaleziono post ID:', postId);
             }
         });
 
-        debugLog('getVisiblePostIds:', postIds);
+        console.log('[LetsFight Mapa] getVisiblePostIds - znaleziono:', postIds.length, 'klubów');
         return postIds;
     }
 

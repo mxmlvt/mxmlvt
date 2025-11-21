@@ -93,6 +93,12 @@
     box-shadow: 0 0 0 3px rgba(247, 151, 22, 0.1) !important;
 }
 
+/* Wrapper przycisku Reset - wyrównanie z innymi filtrami */
+.letsfight-filter-reset-wrapper {
+    display: flex;
+    align-items: flex-end;
+}
+
 /* Stylizacja przycisku Reset z JetSmartFilters */
 .letsfight-filter-reset-wrapper .jet-remove-all-filters__button,
 .jet-remove-all-filters__button {
