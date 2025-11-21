@@ -682,13 +682,35 @@
         pin.style.backgroundSize = 'contain';
         pin.style.backgroundRepeat = 'no-repeat';
 
-        // Etykieta (nazwa + przycisk)
+        // Etykieta (zdjęcie + wszystkie dane + przycisk)
         const label = document.createElement('div');
         label.className = 'letsfight-marker-label';
+
+        const imageHTML = club.thumbnail
+            ? `<img src="${club.thumbnail}" alt="${escapeHtml(club.title)}" class="letsfight-marker-label__img">`
+            : '';
+
+        const adresHTML = club.adres
+            ? `<div class="letsfight-marker-label__adres">${escapeHtml(club.adres)}</div>`
+            : '';
+
+        const dyscyplinyHTML = club.dyscypliny
+            ? `<div class="letsfight-marker-label__dyscypliny">${escapeHtml(club.dyscypliny)}</div>`
+            : '';
+
+        const poziomyHTML = club.poziomy
+            ? `<div class="letsfight-marker-label__poziomy">${escapeHtml(club.poziomy)}</div>`
+            : '';
+
         label.innerHTML = `
+            ${imageHTML}
             <div class="letsfight-marker-label__name">${escapeHtml(club.title)}</div>
+            <div class="letsfight-marker-label__stars">★★★★★</div>
+            ${adresHTML}
+            ${dyscyplinyHTML}
+            ${poziomyHTML}
             <a href="${club.url}" class="letsfight-marker-label__btn" onclick="event.stopPropagation();">
-                Przejdź do klubu →
+                Sprawdź
             </a>
         `;
 

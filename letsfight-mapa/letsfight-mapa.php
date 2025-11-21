@@ -452,12 +452,51 @@ class LetsFight_Mapa {
 
             // Dodaj klub do listy
             if (!empty($lat) && !empty($lng)) {
+                // Pobierz miasto (taxonomy)
+                $miasto_terms = get_the_terms($post_id, 'miasto');
+                $miasto_slug = '';
+                if ($miasto_terms && !is_wp_error($miasto_terms)) {
+                    $miasto_slug = $miasto_terms[0]->slug;
+                }
+
+                // Zbuduj URL: /trenuj/miasto/post-slug/
+                $post_slug = get_post_field('post_name', $post_id);
+                $club_url = $miasto_slug
+                    ? home_url("/trenuj/{$miasto_slug}/{$post_slug}/")
+                    : home_url("/trenuj/{$post_slug}/");
+
+                // Pobierz dyscypliny (taxonomy)
+                $dyscypliny_terms = get_the_terms($post_id, 'dyscypliny');
+                $dyscypliny = '';
+                if ($dyscypliny_terms && !is_wp_error($dyscypliny_terms)) {
+                    $dyscypliny = implode(', ', wp_list_pluck($dyscypliny_terms, 'name'));
+                }
+
+                // Pobierz adres
+                $adres = get_post_meta($post_id, 'adres_dla_mapy', true);
+                if (empty($adres)) {
+                    $adres = get_post_meta($post_id, 'adres', true);
+                }
+
+                // Pobierz poziomy treningowe (meta field)
+                $poziomy = get_post_meta($post_id, 'poziomy_treningowe', true);
+                if (empty($poziomy)) {
+                    $poziomy = get_post_meta($post_id, 'dostepne_poziomy', true);
+                }
+
+                // Pobierz zdjęcie
+                $thumbnail = get_the_post_thumbnail_url($post_id, 'medium');
+
                 $clubs[] = [
                     'id' => $post_id,
                     'title' => get_the_title($post_id),
                     'lat' => floatval($lat),
                     'lng' => floatval($lng),
-                    'url' => get_permalink($post_id),
+                    'url' => $club_url,
+                    'adres' => $adres ? $adres : '',
+                    'dyscypliny' => $dyscypliny,
+                    'poziomy' => $poziomy ? $poziomy : '',
+                    'thumbnail' => $thumbnail ? $thumbnail : '',
                     'excerpt' => wp_trim_words(get_the_excerpt($post_id), 15),
                 ];
             }
