@@ -384,6 +384,8 @@
                 if (!hasDyscyplina) {
                     visible = false;
                     console.log('[LetsFight Mapa] ❌ Post', postId, '- nie ma dyscypliny:', dyscyplina);
+                } else {
+                    console.log('[LetsFight Mapa] ✅ Post', postId, '- MA dyscyplinę:', dyscyplina);
                 }
             }
 
@@ -392,15 +394,19 @@
                 const itemText = $item.text().toLowerCase();
                 if (itemText.indexOf(searchQuery) === -1) {
                     visible = false;
+                    console.log('[LetsFight Mapa] ❌ Post', postId, '- nie pasuje do wyszukiwania:', searchQuery);
                 }
             }
 
             // Pokaż/ukryj
+            console.log('[LetsFight Mapa] 🎬 Post', postId, '- visible =', visible);
             if (visible) {
                 $item.fadeIn(200);
                 visibleCount++;
+                console.log('[LetsFight Mapa] 👁️ Post', postId, '- POKAZANO (fadeIn)');
             } else {
                 $item.fadeOut(200);
+                console.log('[LetsFight Mapa] 🙈 Post', postId, '- UKRYTO (fadeOut)');
             }
         });
 
