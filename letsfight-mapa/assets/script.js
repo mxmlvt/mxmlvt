@@ -1,7 +1,7 @@
 /**
  * Let's Fight - Mapa Klubów
  * JavaScript dla wyszukiwarki z integracją Mapbox i JetEngine
- * @version 1.4.1
+ * @version 1.4.2
  */
 
 (function($) {
@@ -331,15 +331,29 @@
 
                 // METODA 3: Sprawdź tekst w elementach z klasą "dyscypliny" lub podobną
                 if (!hasDyscyplina) {
-                    const $dyscyplinyElements = $item.find('.dyscypliny, [class*="dyscyplin"], .jet-listing-dynamic-terms__link');
+                    const $dyscyplinyElements = $item.find('.dyscypliny, [class*="dyscyplin"], .jet-listing-dynamic-terms__link, .jet-listing-dynamic-field__content');
                     $dyscyplinyElements.each(function() {
                         const termText = $(this).text().toLowerCase().trim();
-                        const termSlug = termText.replace(/\s+/g, '-');
 
-                        if (termText === dyscyplina || termSlug === dyscyplina) {
-                            hasDyscyplina = true;
-                            debugLog('  → Znaleziono przez tekst:', termText);
-                            return false; // break
+                        // Sprawdź czy to lista dyscyplin rozdzielona przecinkami
+                        if (termText.indexOf(',') !== -1) {
+                            // Parse comma-separated disciplines
+                            const disciplines = termText.split(',').map(d => d.trim());
+                            const disciplineSlugs = disciplines.map(d => d.replace(/\s+/g, '-'));
+
+                            if (disciplines.indexOf(dyscyplina) !== -1 || disciplineSlugs.indexOf(dyscyplina) !== -1) {
+                                hasDyscyplina = true;
+                                debugLog('  → Znaleziono przez tekst (comma-separated):', dyscyplina, 'w', termText);
+                                return false; // break
+                            }
+                        } else {
+                            // Single discipline - exact match
+                            const termSlug = termText.replace(/\s+/g, '-');
+                            if (termText === dyscyplina || termSlug === dyscyplina) {
+                                hasDyscyplina = true;
+                                debugLog('  → Znaleziono przez tekst:', termText);
+                                return false; // break
+                            }
                         }
                     });
                 }

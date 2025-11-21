@@ -2,7 +2,7 @@
 
 Profesjonalna wtyczka WordPress do wyświetlania klubów sportów walki z integracją **JetEngine** oraz interaktywną mapą **Mapbox GL JS**. **Własne filtry** (bez JetSmartFilters)!
 
-![Version](https://img.shields.io/badge/version-1.4.0-orange)
+![Version](https://img.shields.io/badge/version-1.4.2-orange)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple)
 
@@ -435,6 +435,14 @@ Wtyczka automatycznie włączy verbose logging w konsoli i wyświetli panel debu
 ---
 
 ## 📜 Changelog
+
+### v1.4.2 (2025-11-21) - FIX FILTROWANIA DYSCYPLIN! 🎯
+- 🔥 **FIX: Parsing dyscyplin rozdzielonych przecinkami**
+  - JetEngine renderuje dyscypliny jako "Boks, Kickboxing, MMA, Muay Thai"
+  - Zaktualizowano METODA 3 - teraz parsuje comma-separated text
+  - Dodano selektor `.jet-listing-dynamic-field__content`
+  - Filtrowanie po dyscyplinach **DZIAŁA!** ✅
+- 📝 **Debug logs** - rozszerzone logowanie dla parsowania dyscyplin
 
 ### v1.4.0 (2025-11-21) - PEŁNA FUNKCJONALNOŚĆ! 🎉
 - 🔥 **FIX FILTROWANIA DYSCYPLIN** - ulepszone wyszukiwanie (4 metody)
