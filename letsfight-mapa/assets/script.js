@@ -285,28 +285,33 @@
 
         // Filtruj markery na mapie jeśli mapa jest aktywna
         if (isMapInitialized && map && markers.length > 0) {
-            // Zbierz ID widocznych klubów
-            const visiblePostIds = [];
-            $allItems.each(function() {
-                const $item = $(this);
-                if (!$item.hasClass('letsfight-item-hidden')) {
-                    const classes = $item.attr('class') || '';
-                    const match = classes.match(/jet-listing-dynamic-post-(\d+)/);
-                    if (match && match[1]) {
-                        visiblePostIds.push(parseInt(match[1], 10));
+            // Jeśli NIE MA FILTRA - pokaż WSZYSTKIE markery
+            if (!dyscyplina && !searchQuery) {
+                $('.letsfight-marker-container').css('display', 'flex');
+            } else {
+                // Jest filtr - zbierz ID widocznych klubów
+                const visiblePostIds = [];
+                $allItems.each(function() {
+                    const $item = $(this);
+                    if (!$item.hasClass('letsfight-item-hidden')) {
+                        const classes = $item.attr('class') || '';
+                        const match = classes.match(/jet-listing-dynamic-post-(\d+)/);
+                        if (match && match[1]) {
+                            visiblePostIds.push(parseInt(match[1], 10));
+                        }
                     }
-                }
-            });
+                });
 
-            // Ukryj/pokaż markery na mapie
-            $('.letsfight-marker-container').each(function() {
-                const postId = parseInt($(this).attr('data-post-id'), 10);
-                if (visiblePostIds.indexOf(postId) !== -1) {
-                    $(this).css('display', 'flex'); // Pokaż marker
-                } else {
-                    $(this).css('display', 'none'); // Ukryj marker
-                }
-            });
+                // Ukryj/pokaż markery na mapie
+                $('.letsfight-marker-container').each(function() {
+                    const postId = parseInt($(this).attr('data-post-id'), 10);
+                    if (visiblePostIds.indexOf(postId) !== -1) {
+                        $(this).css('display', 'flex'); // Pokaż marker
+                    } else {
+                        $(this).css('display', 'none'); // Ukryj marker
+                    }
+                });
+            }
         }
     }
 
