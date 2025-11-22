@@ -289,26 +289,20 @@
             if (!dyscyplina && !searchQuery) {
                 $('.letsfight-marker-container').css('display', 'flex');
             } else {
-                // Jest filtr - zbierz ID widocznych klubów
-                const visiblePostIds = [];
-                $allItems.each(function() {
-                    const $item = $(this);
-                    if (!$item.hasClass('letsfight-item-hidden')) {
-                        const classes = $item.attr('class') || '';
-                        const match = classes.match(/jet-listing-dynamic-post-(\d+)/);
-                        if (match && match[1]) {
-                            visiblePostIds.push(parseInt(match[1], 10));
-                        }
-                    }
-                });
-
-                // Ukryj/pokaż markery na mapie
+                // Jest filtr - sprawdzaj każdy marker osobno
                 $('.letsfight-marker-container').each(function() {
-                    const postId = parseInt($(this).attr('data-post-id'), 10);
-                    if (visiblePostIds.indexOf(postId) !== -1) {
-                        $(this).css('display', 'flex'); // Pokaż marker
+                    const $marker = $(this);
+                    const postId = parseInt($marker.attr('data-post-id'), 10);
+
+                    // Znajdź odpowiadający item w liście
+                    const $item = $(`.jet-listing-grid__item.jet-listing-dynamic-post-${postId}`).first();
+
+                    // Jeśli item istnieje i NIE jest ukryty - pokaż marker
+                    // Jeśli item nie istnieje - pokaż marker (nie możemy go filtrować)
+                    if (!$item.length || !$item.hasClass('letsfight-item-hidden')) {
+                        $marker.css('display', 'flex');
                     } else {
-                        $(this).css('display', 'none'); // Ukryj marker
+                        $marker.css('display', 'none');
                     }
                 });
             }
