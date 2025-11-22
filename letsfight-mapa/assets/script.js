@@ -11,24 +11,11 @@
     let map = null;
     let markers = [];
     let isMapInitialized = false;
-    const DEBUG = window.letsfightMap && letsfightMap.debug;
-
-    /**
-     * Logowanie debug
-     */
-    function debugLog(message, data) {
-        if (DEBUG) {
-            console.log('[LetsFight Mapa]', message, data || '');
-        }
-    }
-
     /**
      * Przeniesienie istniejącego listingu z Elementor widget do naszego kontenera
      * FIX: Zamiast klonować (co powoduje duplikaty), przenosimy istniejący listing
      */
     function moveExistingListing() {
-        console.log('[LetsFight Mapa] ========== PRZENOSZENIE LISTINGU ==========');
-
         const $targetContainer = $('.letsfight-view--lista');
         const listingId = $targetContainer.data('listing-id');
 
@@ -37,22 +24,12 @@
             return;
         }
 
-        console.log('[LetsFight Mapa] Szukam istniejącego listingu o ID:', listingId);
-
         // Szukaj istniejącego listingu JetEngine na stronie
         // Format klasy: .jet-listing-grid--{ID}
         const $existingListing = $(`.jet-listing-grid--${listingId}`).first();
 
         if ($existingListing.length === 0) {
             console.error('[LetsFight Mapa] ❌ Nie znaleziono istniejącego listingu .jet-listing-grid--' + listingId + ' na stronie!');
-            console.log('[LetsFight Mapa] Sprawdzam czy listing jest gdziekolwiek na stronie...');
-
-            // Sprawdź wszystkie listingi na stronie
-            const allListings = $('[class*="jet-listing-grid--"]');
-            console.log('[LetsFight Mapa] Znaleziono listingi:', allListings.length);
-            allListings.each(function(index) {
-                console.log('[LetsFight Mapa]   - Listing', index + ':', this.className);
-            });
 
             $targetContainer.find('.letsfight-listing-placeholder').html(
                 '<div style="padding: 20px; background: #fff3cd; color: #856404; border-radius: 8px;">' +
@@ -64,79 +41,42 @@
             return;
         }
 
-        console.log('[LetsFight Mapa] ✅ Znaleziono istniejący listing:', {
-            html_length: $existingListing.html().length,
-            items_count: $existingListing.find('.jet-listing-grid__item').length
-        });
-
         // KLUCZOWE: PRZENIEŚ (nie klonuj!) listing do naszego kontenera
         // To rozwiązuje problem duplikacji - listing będzie tylko raz na stronie
         $targetContainer.find('.letsfight-listing-placeholder').remove();
         $existingListing.detach().appendTo($targetContainer);
 
         const itemsCount = $existingListing.find('.jet-listing-grid__item').length;
-        console.log('[LetsFight Mapa] ✅ Listing przeniesiony pomyślnie! Liczba itemów:', itemsCount);
 
         // Aktualizuj licznik klubów
         $('.letsfight-counter__number').text(itemsCount);
-
-        // Log dla debugowania - jakie elementy mamy w itemach (żeby filtry wiedziały co szukać)
-        if (DEBUG && itemsCount > 0) {
-            const $firstItem = $existingListing.find('.jet-listing-grid__item').first();
-            console.log('[LetsFight Mapa] Struktura pierwszego itemu (dla debugowania filtrów):', {
-                classes: $firstItem.attr('class'),
-                html_sample: $firstItem.html().substring(0, 200) + '...'
-            });
-        }
     }
 
     /**
      * Inicjalizacja przy załadowaniu DOM
      */
     $(document).ready(function() {
-        console.log('[LetsFight Mapa] ========== INIT START ==========');
-        console.log('[LetsFight Mapa] DEBUG mode:', DEBUG);
-
         if ($('.letsfight-wyszukiwarka').length === 0) {
             console.error('[LetsFight Mapa] ❌ Nie znaleziono kontenera .letsfight-wyszukiwarka');
             return;
         }
-        console.log('[LetsFight Mapa] ✅ Kontener .letsfight-wyszukiwarka znaleziony');
 
         // Sprawdź czy Mapbox jest załadowany
         if (typeof mapboxgl === 'undefined') {
             console.error('[LetsFight Mapa] ❌ Mapbox GL JS nie jest załadowany!');
             return;
         }
-        console.log('[LetsFight Mapa] ✅ Mapbox GL JS załadowany');
 
         // Sprawdź czy mamy token
         if (!letsfightMap || !letsfightMap.mapboxToken) {
             console.error('[LetsFight Mapa] ❌ Brak tokenu Mapbox!', letsfightMap);
             return;
         }
-        console.log('[LetsFight Mapa] ✅ Token Mapbox dostępny:', letsfightMap.mapboxToken.substring(0, 10) + '...');
-
-        // Sprawdź czy #letsfight-map istnieje
-        const mapContainer = document.getElementById('letsfight-map');
-        if (mapContainer) {
-            console.log('[LetsFight Mapa] ✅ Container #letsfight-map istnieje:', {
-                width: mapContainer.offsetWidth,
-                height: mapContainer.offsetHeight,
-                display: window.getComputedStyle(mapContainer).display,
-                visibility: window.getComputedStyle(mapContainer).visibility
-            });
-        } else {
-            console.warn('[LetsFight Mapa] ⚠️ Container #letsfight-map NIE ISTNIEJE w DOM!');
-        }
-
-        debugLog('Inicjalizacja wtyczki');
 
         // KRYTYCZNE: Przenieś istniejący listing z Elementor widget do naszego kontenera
         moveExistingListing();
 
         initWyszukiwarka();
-        console.log('[LetsFight Mapa] ========== INIT COMPLETE ==========');
     });
 
     /**
@@ -144,8 +84,6 @@
      */
     function initWyszukiwarka() {
         const $wrapper = $('.letsfight-wyszukiwarka');
-
-        debugLog('Inicjalizacja komponentów UI');
 
         // Toggle Lista/Mapa
         initToggleView();
@@ -161,20 +99,14 @@
 
         // Initial counter
         updateCounter();
-
-        debugLog('Wtyczka zainicjalizowana poprawnie');
     }
 
     /**
      * Inicjalizacja przełącznika Lista/Mapa
      */
     function initToggleView() {
-        console.log('[LetsFight Mapa] initToggleView() - liczba przycisków:', $('.letsfight-toggle__btn').length);
-
         $('.letsfight-toggle__btn').on('click', function() {
             const view = $(this).data('view');
-            console.log('[LetsFight Mapa] ========== TOGGLE CLICKED: ' + view + ' ==========');
-            debugLog('Przełączanie widoku na:', view);
 
             // Zmień aktywny przycisk
             $('.letsfight-toggle__btn').removeClass('letsfight-toggle__btn--active');
@@ -184,17 +116,11 @@
             $('.letsfight-view').removeClass('letsfight-view--active');
             $(`.letsfight-view--${view}`).addClass('letsfight-view--active');
 
-            console.log('[LetsFight Mapa] Widok zmieniony na:', view);
-
             // Obsługa mapy
             if (view === 'mapa') {
-                console.log('[LetsFight Mapa] Widok MAPA - isMapInitialized:', isMapInitialized);
-
                 if (!isMapInitialized) {
-                    console.log('[LetsFight Mapa] Wywołanie initMap()...');
                     initMap();
                 } else {
-                    console.log('[LetsFight Mapa] Mapa już zainicjalizowana - resize + update markerów');
                     // Odśwież rozmiar mapy i markery
                     setTimeout(function() {
                         if (map) {
@@ -221,8 +147,6 @@
 
             // Przekieruj tylko jeśli wybrano inne miasto niż aktualne
             if (newSlug !== currentSlug) {
-                console.log('[LetsFight Mapa] Przekierowanie do miasta:', newSlug);
-
                 if (newSlug) {
                     window.location.href = baseUrl + newSlug + '/';
                 } else {
@@ -236,11 +160,8 @@
      * Inicjalizacja własnych filtrów (bez JetSmartFilters)
      */
     function initCustomFilters() {
-        debugLog('Inicjalizacja własnych filtrów');
-
         // Filtr dyscypliny
         $('.letsfight-dyscyplina-select').on('change', function() {
-            debugLog('Zmiana dyscypliny:', $(this).val());
             filterClubs();
         });
 
@@ -250,14 +171,12 @@
             clearTimeout(searchTimeout);
             const query = $(this).val();
             searchTimeout = setTimeout(function() {
-                debugLog('Wyszukiwanie:', query);
                 filterClubs();
             }, 300);
         });
 
         // Przycisk reset
         $('.letsfight-btn--reset').on('click', function() {
-            debugLog('Reset filtrów');
             $('.letsfight-dyscyplina-select').val('');
             $('.letsfight-search-input').val('');
             filterClubs();
@@ -271,40 +190,13 @@
         const dyscyplina = $('.letsfight-dyscyplina-select').val().toLowerCase();
         const searchQuery = $('.letsfight-search-input').val().toLowerCase();
 
-        console.log('[LetsFight Mapa] ========== FILTROWANIE ==========');
-        console.log('[LetsFight Mapa] Dyscyplina:', dyscyplina || '(wszystkie)');
-        console.log('[LetsFight Mapa] Wyszukiwanie:', searchQuery || '(brak)');
-
         const $allItems = $('.jet-listing-grid__item');
-        console.log('[LetsFight Mapa] Liczba itemów do przeszukania:', $allItems.length);
-
-        // DEBUG: Pokaż strukturę pierwszego itemu
-        if (DEBUG && $allItems.length > 0 && dyscyplina) {
-            const $firstItem = $allItems.first();
-            console.log('[LetsFight Mapa] 🔍 DEBUG - Struktura pierwszego itemu:');
-            console.log('[LetsFight Mapa]   Klasy:', $firstItem.attr('class'));
-            console.log('[LetsFight Mapa]   Linki z term-*:', $firstItem.find('a[class*="term-"]').map(function() {
-                return $(this).attr('class');
-            }).get());
-            console.log('[LetsFight Mapa]   Elementy .dyscypliny:', $firstItem.find('.dyscypliny, [class*="dyscyplin"]').map(function() {
-                return {class: $(this).attr('class'), text: $(this).text()};
-            }).get());
-            console.log('[LetsFight Mapa]   Linki /dyscypliny/:', $firstItem.find('a[href*="/dyscypliny/"]').map(function() {
-                return $(this).attr('href');
-            }).get());
-            console.log('[LetsFight Mapa]   Linki .jet-listing-dynamic-terms__link:', $firstItem.find('.jet-listing-dynamic-terms__link').map(function() {
-                return {class: $(this).attr('class'), text: $(this).text(), href: $(this).attr('href')};
-            }).get());
-        }
 
         let visibleCount = 0;
 
         $allItems.each(function(itemIndex) {
             const $item = $(this);
             let visible = true;
-            const postClasses = $item.attr('class') || '';
-            const postIdMatch = postClasses.match(/jet-listing-dynamic-post-(\d+)/);
-            const postId = postIdMatch ? postIdMatch[1] : 'unknown';
 
             // Filtr dyscypliny - ULEPSZONE WYSZUKIWANIE
             if (dyscyplina) {
@@ -314,7 +206,6 @@
                 const itemClasses = $item.attr('class') || '';
                 if (itemClasses.indexOf('term-' + dyscyplina) !== -1) {
                     hasDyscyplina = true;
-                    debugLog('  → Znaleziono przez klasę item: term-' + dyscyplina);
                 }
 
                 // METODA 2: Sprawdź klasy CSS w linkach/spanach z taxonomiami
@@ -323,7 +214,6 @@
                         const termClasses = $(this).attr('class') || '';
                         if (termClasses.indexOf('term-' + dyscyplina) !== -1) {
                             hasDyscyplina = true;
-                            debugLog('  → Znaleziono przez klasę link: term-' + dyscyplina);
                             return false; // break
                         }
                     });
@@ -333,12 +223,8 @@
                 if (!hasDyscyplina) {
                     const $dyscyplinyElements = $item.find('.dyscypliny, [class*="dyscyplin"], .jet-listing-dynamic-terms__link, .jet-listing-dynamic-field__content');
 
-                    debugLog('  🔍 METODA 3 - znaleziono elementów:', $dyscyplinyElements.length);
-
                     $dyscyplinyElements.each(function(index) {
                         const termText = $(this).text().toLowerCase().trim();
-
-                        debugLog('    Element', index + ':', termText.substring(0, 50) + (termText.length > 50 ? '...' : ''));
 
                         // Sprawdź czy to lista dyscyplin rozdzielona przecinkami
                         if (termText.indexOf(',') !== -1) {
@@ -346,23 +232,15 @@
                             const disciplines = termText.split(',').map(d => d.trim());
                             const disciplineSlugs = disciplines.map(d => d.replace(/\s+/g, '-'));
 
-                            debugLog('      → Zawiera przecinki! Disciplines:', disciplines);
-                            debugLog('      → Slugs:', disciplineSlugs);
-                            debugLog('      → Szukamy:', dyscyplina);
-
                             if (disciplines.indexOf(dyscyplina) !== -1 || disciplineSlugs.indexOf(dyscyplina) !== -1) {
                                 hasDyscyplina = true;
-                                debugLog('  ✅ Znaleziono przez tekst (comma-separated):', dyscyplina, 'w', termText);
                                 return false; // break
-                            } else {
-                                debugLog('      ❌ Nie znaleziono w tym elemencie');
                             }
                         } else {
                             // Single discipline - exact match
                             const termSlug = termText.replace(/\s+/g, '-');
                             if (termText === dyscyplina || termSlug === dyscyplina) {
                                 hasDyscyplina = true;
-                                debugLog('  ✅ Znaleziono przez tekst:', termText);
                                 return false; // break
                             }
                         }
@@ -375,7 +253,6 @@
                         const href = $(this).attr('href') || '';
                         if (href.indexOf('/' + dyscyplina + '/') !== -1 || href.indexOf('/' + dyscyplina) !== -1) {
                             hasDyscyplina = true;
-                            debugLog('  → Znaleziono przez href:', href);
                             return false; // break
                         }
                     });
@@ -383,9 +260,6 @@
 
                 if (!hasDyscyplina) {
                     visible = false;
-                    console.log('[LetsFight Mapa] ❌ Post', postId, '- nie ma dyscypliny:', dyscyplina);
-                } else {
-                    console.log('[LetsFight Mapa] ✅ Post', postId, '- MA dyscyplinę:', dyscyplina);
                 }
             }
 
@@ -394,26 +268,20 @@
                 const itemText = $item.text().toLowerCase();
                 if (itemText.indexOf(searchQuery) === -1) {
                     visible = false;
-                    console.log('[LetsFight Mapa] ❌ Post', postId, '- nie pasuje do wyszukiwania:', searchQuery);
                 }
             }
 
             // Pokaż/ukryj - używamy CSS class z !important
-            console.log('[LetsFight Mapa] 🎬 Post', postId, '- visible =', visible);
             if (visible) {
                 $item.removeClass('letsfight-item-hidden');
                 visibleCount++;
-                console.log('[LetsFight Mapa] 👁️ Post', postId, '- POKAZANO (removeClass)');
             } else {
                 $item.addClass('letsfight-item-hidden');
-                console.log('[LetsFight Mapa] 🙈 Post', postId, '- UKRYTO (addClass)');
             }
         });
 
         // Aktualizuj licznik
         $('.letsfight-counter__number').text(visibleCount);
-
-        console.log('[LetsFight Mapa] ✅ Widocznych klubów:', visibleCount);
 
         // Aktualizuj mapę jeśli aktywna
         if (isMapInitialized && map) {
@@ -427,8 +295,6 @@
     function initJetEngineListener() {
         // Event wywoływany przez JetSmartFilters po zakończeniu AJAX
         $(document).on('jet-filter-content-rendered', function(event, response) {
-            debugLog('JetEngine AJAX - odświeżono listing', response);
-
             // Aktualizuj licznik
             updateCounter();
 
@@ -440,7 +306,6 @@
 
         // Dodatkowy event dla bezpośrednich zmian w JetEngine
         $(document).on('jet-engine-request-calendar', function() {
-            debugLog('JetEngine - zmiana danych');
             updateCounter();
         });
     }
@@ -449,8 +314,6 @@
      * Inicjalizacja mapy Mapbox
      */
     function initMap() {
-        debugLog('========== INICJALIZACJA MAPY ==========');
-
         // Sprawdź container
         const container = document.getElementById('letsfight-map');
         if (!container) {
@@ -458,15 +321,8 @@
             return;
         }
 
-        debugLog('Container znaleziony:', {
-            width: container.offsetWidth,
-            height: container.offsetHeight,
-            visible: container.offsetParent !== null
-        });
-
         // Sprawdź czy mapa już istnieje
         if (isMapInitialized && map) {
-            debugLog('Mapa już zainicjalizowana');
             return;
         }
 
@@ -485,13 +341,10 @@
 
             // Ustaw token
             mapboxgl.accessToken = token;
-            console.log('[LetsFight Mapa] ✅ Token Mapbox ustawiony:', token.substring(0, 20) + '...');
 
             // Współrzędne centrum dla Polski (Warszawa)
             const centerLat = 52.2297;
             const centerLng = 21.0122;
-
-            debugLog('Tworzenie mapy...', {center: [centerLng, centerLat], zoom: 6});
 
             // Stwórz mapę
             map = new mapboxgl.Map({
@@ -504,30 +357,19 @@
                 attributionControl: true
             });
 
-            debugLog('Mapa stworzona, dodawanie kontrolek...');
-
             // Dodaj kontrolki
             map.addControl(new mapboxgl.NavigationControl(), 'top-right');
             map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
 
-            debugLog('Kontrolki dodane, czekam na załadowanie mapy...');
-
             // Event po załadowaniu mapy
             map.on('load', function() {
-                console.log('[LetsFight Mapa] ✅ Mapa Mapbox załadowana poprawnie!');
                 isMapInitialized = true;
                 updateMapMarkers();
             });
 
             // Rozszerzona obsługa błędów
             map.on('error', function(e) {
-                console.error('[LetsFight Mapa] ❌ Błąd mapy - szczegóły:', {
-                    error: e.error,
-                    error_message: e.error ? e.error.message : 'brak',
-                    error_status: e.error ? e.error.status : 'brak',
-                    sourceId: e.sourceId,
-                    full_event: e
-                });
+                console.error('[LetsFight Mapa] ❌ Błąd mapy:', e);
 
                 // Mapbox error codes
                 if (e.error) {
@@ -546,11 +388,6 @@
                 }
             });
 
-            // Dodatkowy listener dla stylów
-            map.on('style.load', function() {
-                console.log('[LetsFight Mapa] ✅ Styl mapy załadowany');
-            });
-
         } catch (error) {
             console.error('[LetsFight Mapa] ❌ Nie można zainicjalizować mapy:', error);
             console.error('[LetsFight Mapa] Error name:', error.name);
@@ -565,11 +402,8 @@
      */
     function updateMapMarkers() {
         if (!map || !isMapInitialized) {
-            debugLog('Mapa nie jest gotowa do aktualizacji markerów');
             return;
         }
-
-        debugLog('Rozpoczęcie aktualizacji markerów');
 
         // Usuń stare markery
         clearMarkers();
@@ -577,10 +411,7 @@
         // Pobierz ID postów z listingu
         const postIds = getVisiblePostIds();
 
-        debugLog('Znaleziono postów:', postIds.length);
-
         if (postIds.length === 0) {
-            debugLog('Brak postów do wyświetlenia');
             showMapMessage('Brak klubów do wyświetlenia na mapie');
             return;
         }
@@ -601,7 +432,6 @@
                 showMapLoading(false);
 
                 if (response.success && response.data && response.data.length > 0) {
-                    debugLog('Otrzymano współrzędne klubów:', response.data.length);
                     renderMarkers(response.data);
                 } else {
                     const message = response.data && response.data.message
@@ -661,8 +491,6 @@
                 duration: 1000
             });
         }
-
-        debugLog('Renderowano markerów:', markers.length);
     }
 
     /**
@@ -748,7 +576,6 @@
             marker.remove();
         });
         markers = [];
-        debugLog('Usunięto wszystkie markery');
     }
 
     /**
@@ -757,11 +584,8 @@
     function getVisiblePostIds() {
         const postIds = [];
 
-        console.log('[LetsFight Mapa] ========== getVisiblePostIds START ==========');
-
         // Szukaj itemów w kontenerze listy (NIE :visible, bo widok może być ukryty)
         const $items = $('.letsfight-view--lista .jet-listing-grid__item');
-        console.log('[LetsFight Mapa] Znaleziono itemów w kontenerze:', $items.length);
 
         $items.each(function(index) {
             const $item = $(this);
@@ -778,16 +602,12 @@
 
                 if (!isHiddenByFilter) {
                     postIds.push(postId);
-                    console.log('[LetsFight Mapa]   ✅ Item', index, '- post ID:', postId, '(widoczny)');
-                } else {
-                    console.log('[LetsFight Mapa]   ⊘ Item', index, '- post ID:', postId, '(ukryty przez filtr)');
                 }
             } else {
-                console.error('[LetsFight Mapa]   ❌ Item', index, '- BRAK post ID w klasach:', classes);
+                console.error('[LetsFight Mapa] Item nie ma post ID w klasach:', classes);
             }
         });
 
-        console.log('[LetsFight Mapa] ✅ getVisiblePostIds - znaleziono:', postIds.length, 'widocznych klubów');
         return postIds;
     }
 
@@ -799,7 +619,6 @@
         setTimeout(function() {
             const count = $('.jet-listing-grid__item').length;
             $('.letsfight-counter__number').text(count);
-            debugLog('Zaktualizowano licznik klubów:', count);
         }, 100);
     }
 
@@ -807,8 +626,6 @@
      * Scroll do karty klubu i highlight
      */
     function scrollToClub(postId) {
-        debugLog('Scroll do klubu:', postId);
-
         // Przełącz na widok listy
         $('.letsfight-toggle__btn[data-view="lista"]').trigger('click');
 
@@ -828,8 +645,6 @@
                 setTimeout(function() {
                     $card.removeClass('jet-listing-grid__item--highlighted');
                 }, 2000);
-
-                debugLog('Przewinięto do klubu:', postId);
             } else {
                 console.warn('[LetsFight Mapa] Nie znaleziono karty klubu:', postId);
             }
@@ -853,7 +668,6 @@
      * Pokaż wiadomość na mapie
      */
     function showMapMessage(message) {
-        debugLog('Wiadomość na mapie:', message);
         // Można dodać overlay z wiadomością
     }
 
@@ -877,17 +691,6 @@
             "'": '&#039;'
         };
         return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-    }
-
-    // Eksportuj funkcje dla debugowania (tylko w trybie debug)
-    if (DEBUG) {
-        window.letsfightMapDebug = {
-            updateMarkers: updateMapMarkers,
-            updateCounter: updateCounter,
-            getPostIds: getVisiblePostIds,
-            map: function() { return map; },
-            markers: function() { return markers; }
-        };
     }
 
 })(jQuery);

@@ -376,6 +376,10 @@
 }
 
 .letsfight-marker-label {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
     background: #1a1a1a;
     border: 2px solid #f79716;
     border-radius: 8px;
@@ -383,7 +387,6 @@
     min-width: 220px;
     max-width: 280px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    transform: translateY(-20px); /* Przesuń etykietę wyżej obok pina */
 }
 
 .letsfight-marker-label__img {
