@@ -591,8 +591,8 @@
         $items.each(function(index) {
             const $item = $(this);
 
-            // Sprawdź czy item NIE jest ukryty przez filtry (fadeOut dodaje display:none inline)
-            const isHiddenByFilter = $item.css('display') === 'none';
+            // Sprawdź czy item NIE jest ukryty przez filtry (używamy klasy .letsfight-item-hidden)
+            const isHiddenByFilter = $item.hasClass('letsfight-item-hidden');
 
             // JetEngine dodaje klasę: jet-listing-dynamic-post-{ID}
             const classes = $item.attr('class') || '';
