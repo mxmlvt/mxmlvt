@@ -513,25 +513,36 @@
     .letsfight-panel {
         padding: 15px;
     }
-    
+
     .letsfight-btn__text {
         display: none;
     }
-    
+
     .letsfight-btn__icon {
         font-size: 18px;
     }
-    
+
     .letsfight-toggle__text {
         display: none;
     }
-    
+
     .letsfight-counter__number {
         font-size: 20px;
     }
-    
+
     #letsfight-map {
-        height: 350px !important;
+        height: 70vh !important;
+        min-height: 500px !important;
+    }
+
+    /* Większy przycisk fullscreen na mobile */
+    .mapboxgl-ctrl-fullscreen {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    .mapboxgl-ctrl-fullscreen .mapboxgl-ctrl-icon {
+        background-size: 24px 24px !important;
     }
 }
 
