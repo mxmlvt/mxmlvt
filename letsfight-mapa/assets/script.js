@@ -542,8 +542,9 @@
             </a>
         `;
 
-        container.appendChild(pin);
+        // Etykieta PRZED pinezką (żeby była wyżej)
         container.appendChild(label);
+        container.appendChild(pin);
 
         return container;
     }
